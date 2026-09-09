@@ -6,6 +6,14 @@
 
 import type { Journey } from "./journey.ts";
 
+/**
+ * The quantity of trains of one answer.
+ *
+ * The Worker gives that quantity, and the page reads it to say that the answer
+ * holds fewer trains than the limit.
+ */
+export const TRAINS = 5;
+
 /** One station of the field of search. */
 export type StationSummary = {
 	readonly id: number;

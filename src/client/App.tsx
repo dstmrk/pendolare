@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import type { StationSummary } from "../shared/api.ts";
+import { type StationSummary, TRAINS } from "../shared/api.ts";
 import { DepartureBoard } from "./components/board/DepartureBoard.tsx";
 import { SplitFlapText } from "./components/board/SplitFlapText.tsx";
 import { StationField } from "./components/StationField.tsx";
@@ -84,8 +84,17 @@ export function App() {
 				)}
 				{board.data !== undefined && board.data.journeys.length > 0 && (
 					<>
-						<DepartureBoard journeys={board.data.journeys} />
+						<DepartureBoard
+							journeys={board.data.journeys}
+							from={board.data.from.name}
+							to={board.data.to.name}
+						/>
 						<Note>{text.estimate}</Note>
+						{board.data.journeys.length < TRAINS && (
+							<Note>
+								{text.partial(board.data.journeys.length, board.data.scanned)}
+							</Note>
+						)}
 						{board.data.updatedAt !== null && (
 							<Note>{text.updatedAt(board.data.updatedAt)}</Note>
 						)}

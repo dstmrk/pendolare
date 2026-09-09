@@ -1,7 +1,11 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import catalogue from "../data/stations.json";
-import type { JourneysAnswer, StationsAnswer } from "../shared/api.ts";
+import {
+	type JourneysAnswer,
+	type StationsAnswer,
+	TRAINS,
+} from "../shared/api.ts";
 import { findJourneys } from "../shared/journey.ts";
 import { parseBoard } from "../shared/monitor.ts";
 import { type Station, searchStations } from "../shared/stations.ts";
@@ -33,9 +37,6 @@ const MONITOR =
  * answer serves each pair of stations that starts at the same station.
  */
 const CACHE_SECONDS = 45;
-
-/** The quantity of trains of one answer. */
-const TRAINS = 5;
 
 /** The quantity of stations of the field of search. */
 const SUGGESTIONS = 8;

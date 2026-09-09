@@ -28,15 +28,21 @@ import { SplitFlapText } from "./SplitFlapText.tsx";
  * thus the page never moves to the side: the person moves the board, as a
  * person in a station moves the eyes.
  */
-export function DepartureBoard({ journeys }: { journeys: readonly Journey[] }) {
+export function DepartureBoard({
+	journeys,
+	from,
+	to,
+}: {
+	journeys: readonly Journey[];
+	from: string;
+	to: string;
+}) {
 	const wide = columnWidth(journeys.map((one) => one.destination));
 
 	return (
 		<div className="overflow-x-auto rounded-lg border border-board-line bg-board-panel">
 			<table className="w-full border-collapse">
-				<caption className="sr-only">
-					{`${text.columnTrain}, ${text.columnDestination}, ${text.columnTime}, ${text.columnDelay}, ${text.columnPlatform}, ${text.columnLeaving}, ${text.columnArrival}`}
-				</caption>
+				<caption className="sr-only">{text.caption(from, to)}</caption>
 				<thead>
 					<tr className="border-board-line border-b">
 						<Head>{text.columnTrain}</Head>
