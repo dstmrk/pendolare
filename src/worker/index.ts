@@ -52,9 +52,32 @@ const journey = z.object({
 	limit: z.coerce.number().int().min(1).max(20).default(TRAINS),
 });
 
-/** Reads the page of the monitor of departures of one station. */
-async function fetchBoard(placeId: number): Promise<string> {
+/**
+ * Reads the page of the monitor of departures of one station.
+ *
+ * The answer of RFI goes in the cache of the data centre, with the time of
+ * `CACHE_SECONDS`. One answer then serves each pair of stations that starts at
+ * the same station, and RFI receives one call for each station and not one call
+ * for each person.
+ *
+ * The function writes the cache itself, with the Cache API. The option
+ * `cf.cacheTtl` is not sufficient: RFI answers with `Cache-Control: private`,
+ * and that value stops the cache of Cloudflare. The function removes each
+ * header of the answer that stops the cache, and it writes its own value.
+ */
+async function fetchBoard(
+	placeId: number,
+	later: { waitUntil(promise: Promise<unknown>): void },
+): Promise<string> {
 	const url = `${MONITOR}?Arrivals=False&PlaceId=${placeId}`;
+	const key = new Request(url, { method: "GET" });
+	const cache = caches.default;
+
+	const stored = await cache.match(key);
+	if (stored !== undefined) {
+		return stored.text();
+	}
+
 	const answer = await fetch(url, {
 		headers: {
 			// RFI supplies the page to a browser. The name of the application
@@ -62,12 +85,17 @@ async function fetchBoard(placeId: number): Promise<string> {
 			"User-Agent": "pendolare (+https://github.com/dstmrk/pendolare)",
 			"Accept-Language": "it",
 		},
-		cf: { cacheTtl: CACHE_SECONDS, cacheEverything: true },
 	});
 	if (!answer.ok) {
 		throw new Error(`RFI ${answer.status}`);
 	}
-	return answer.text();
+
+	const fresh = new Response(answer.body, answer);
+	fresh.headers.set("Cache-Control", `max-age=${CACHE_SECONDS}`);
+	// The Cache API writes no answer with a cookie, and RFI can send one.
+	fresh.headers.delete("Set-Cookie");
+	later.waitUntil(cache.put(key, fresh.clone()));
+	return fresh.text();
 }
 
 const app = new Hono();
@@ -105,7 +133,7 @@ app.get("/api/journeys", async (c) => {
 
 	let board: ReturnType<typeof parseBoard>;
 	try {
-		board = parseBoard(await fetchBoard(from.id));
+		board = parseBoard(await fetchBoard(from.id, c.executionCtx));
 	} catch {
 		return c.json({ error: "rfi" }, 502);
 	}

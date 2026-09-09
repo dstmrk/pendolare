@@ -115,15 +115,20 @@ for (const [key, names] of stops) {
 console.log(`the join gives a name to ${found.size} stations`);
 
 /**
- * A short name of two stations goes away.
+ * A name of two stations goes away.
  *
  * Such a name gives a train that stops at another station, and that answer is
- * an error. A name of the catalogue that RFI also gives to another station also
- * goes away.
+ * an error. The map holds the official name of each station also: a short name
+ * that is the official name of another station is the same error, and the
+ * search of `isStation` reads the two names of one station together.
  */
 const owners = new Map<string, Set<number>>();
 for (const station of stations) {
-	const names = new Set([...(found.get(station.id) ?? []), ...station.aliases]);
+	const names = new Set([
+		station.name,
+		...(found.get(station.id) ?? []),
+		...station.aliases,
+	]);
 	for (const name of names) {
 		const key = normalise(name);
 		const set = owners.get(key) ?? new Set<number>();

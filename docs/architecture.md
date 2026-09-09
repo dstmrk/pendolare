@@ -213,8 +213,15 @@ cancels receives no hour: that train arrives at no hour.
 
 ### 3.6 The cache
 
-The Worker asks the page of RFI with `cf: { cacheTtl: 45, cacheEverything: true }`.
-One answer then serves each pair of stations that starts at the same station.
+The Worker writes the answer of RFI in the cache of the data centre, with the
+Cache API and a time of 45 seconds. One answer then serves each pair of stations
+that starts at the same station: RFI receives one call for each station, and not
+one call for each person.
+
+The option `cf: { cacheTtl }` of `fetch` is not sufficient. RFI answers with
+`Cache-Control: private`, and that value stops the cache of Cloudflare.
+Therefore the Worker writes the cache itself: it removes each header of the
+answer that stops the cache, and it writes its own value.
 
 The answer of `/api/journeys` holds 45 seconds of cache, and the answer of
 `/api/stations` holds one hour: the catalogue changes with a new build only.
@@ -313,7 +320,25 @@ finger.
 The size of the text of a field is 16 pixels. Safari on iOS makes the page
 larger when the text of a field is below that size.
 
-## 6. The tests
+## 6. The configuration of TypeScript
+
+The project holds one configuration for each environment:
+
+| File | Content | Library |
+|---|---|---|
+| `tsconfig.client.json` | `src/client` and `src/shared` | DOM |
+| `tsconfig.worker.json` | `src/worker` and `src/shared` | no DOM |
+| `tsconfig.node.json` | `scripts` and the files of configuration | no DOM |
+
+The three are necessary. The library DOM gives a `CacheStorage` with no
+`default`, and the Worker holds `caches.default`. With one configuration the
+Worker reads the type of the browser, and that type is not correct. The three
+files also stop an error: a file of the Worker that reads `document` now gives
+an error of the compiler.
+
+`npm run typecheck` calls `tsc` one time for each file.
+
+## 7. The tests
 
 Vitest examines the pure functions of `src/shared/` and of `src/client/lib/`.
 Each file with logic has a test file.
@@ -326,7 +351,7 @@ no Worker.
 images of the carrier hold `src="LOGO"` in the place of the data URI, because
 that URI is 40 kilobytes.
 
-## 7. The release
+## 8. The release
 
 `compatibility_date` of `wrangler.jsonc` fixes the behaviour of the runtime. Do
 not change that date without a reason.
