@@ -142,10 +142,16 @@ Run these commands before each commit:
 
 ```bash
 npm test          # Vitest, one time
-npm run typecheck # tsc --noEmit
+npm run typecheck # tsc, one time for each environment
 npm run check     # Biome, examination only
 npm run fix       # Biome, it writes the corrections
 ```
+
+The project holds one configuration of TypeScript for each environment:
+`tsconfig.client.json`, `tsconfig.worker.json` and `tsconfig.node.json`. The
+library DOM gives a `CacheStorage` with no `default`, and the Worker holds
+`caches.default`. Paragraph 6 of `docs/architecture.md` gives the reason. Add a
+new file to the correct configuration.
 
 Biome writes tab indentation. Run `npm run fix` after you add a file. Biome
 examines no file of `src/data/`, because the scripts write those files. Biome
