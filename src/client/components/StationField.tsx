@@ -27,6 +27,10 @@ const CLICK_DELAY = 150;
  * holds the role `listbox`, and each result holds the role `option`. The
  * results receive no focus: the field holds it, and the arrows move the
  * selection.
+ *
+ * The field holds no visible label. Its `placeholder` gives the instruction,
+ * and `label` gives the name of the field to a screen reader, with
+ * `aria-label`.
  */
 export function StationField({
 	label,
@@ -100,12 +104,6 @@ export function StationField({
 
 	return (
 		<div className="relative">
-			<label
-				htmlFor={id}
-				className="mb-1 block font-board text-[11px] text-board-muted uppercase tracking-widest"
-			>
-				{label}
-			</label>
 			<Input
 				id={id}
 				type="text"
@@ -114,6 +112,7 @@ export function StationField({
 				autoCorrect="off"
 				spellCheck={false}
 				placeholder={placeholder}
+				aria-label={label}
 				value={query}
 				aria-expanded={shown}
 				aria-controls={`${id}-list`}

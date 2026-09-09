@@ -55,14 +55,24 @@ export function App() {
 			</header>
 
 			<div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-				<section className="grid grid-cols-1 items-end gap-x-3 gap-y-4 sm:grid-cols-[1fr_auto_1fr]">
-					<StationField
-						label={text.from}
-						placeholder={text.fromPlaceholder}
-						value={from}
-						onChange={setFrom}
-					/>
-					<div className="flex justify-center">
+				<section className="grid grid-cols-[1fr_auto] grid-rows-2 gap-x-3 gap-y-3 sm:grid-cols-[1fr_auto_1fr] sm:grid-rows-1">
+					<div className="col-start-1 row-start-1">
+						<StationField
+							label={text.from}
+							placeholder={text.fromPlaceholder}
+							value={from}
+							onChange={setFrom}
+						/>
+					</div>
+					<div className="col-start-1 row-start-2 sm:col-start-3 sm:row-start-1">
+						<StationField
+							label={text.to}
+							placeholder={text.toPlaceholder}
+							value={to}
+							onChange={setTo}
+						/>
+					</div>
+					<div className="col-start-2 row-span-2 row-start-1 flex items-center justify-center sm:row-span-1">
 						<Button
 							variant="outline"
 							disabled={from === null && to === null}
@@ -77,12 +87,6 @@ export function App() {
 							<ArrowDownUpIcon />
 						</Button>
 					</div>
-					<StationField
-						label={text.to}
-						placeholder={text.toPlaceholder}
-						value={to}
-						onChange={setTo}
-					/>
 				</section>
 
 				<Button
