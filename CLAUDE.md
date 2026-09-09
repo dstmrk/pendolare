@@ -110,17 +110,18 @@ must do no I/O. Write a unit test for each new rule.
 - Keep all the tokens in `src/client/styles/theme.css`, with the directive
   `@theme` of Tailwind CSS v4.
 - Keep the font files in the repository. Do not use an external CDN. The font of
-  the board is Departure Mono, in `src/client/fonts/`.
+  the board is JetBrains Mono, in `src/client/fonts/`. The board shows the bold
+  weight only.
 - Show each character of the board with `SplitFlapText`: one flap for one
   character. A flap is a card with two halves, and it turns through the drum. A
   surface that turns one time is not a Solari. Paragraph 5.2 of
   `docs/architecture.md` gives the rules.
 - The characters of the board are white. The amber marks the delay and the hour
   of arrival of a train with a delay. The red marks a train that RFI cancels.
-- Give a size of a multiple of 11 pixels to each text of the board:
-  `text-[11px]`, `text-[22px]`. Departure Mono is a pixel font. Write the size as
-  an arbitrary value with a length. A token `text-flap-sm` has the shape of a
-  colour, thus `tailwind-merge` removes it and keeps `text-board-amber`.
+- Give the text of the board a size of `text-[11px]` or `text-[22px]`, and
+  write the size as an arbitrary value with a length, not as a token of the
+  theme. A token `text-flap-sm` has the shape of a colour, thus
+  `tailwind-merge` removes it and keeps `text-board-amber`.
 - Give `aria-hidden` to the flaps. Put the correct value in an element that is
   not visible.
 - The line of the axis of a flap goes above the character. Do not make it with a

@@ -1,16 +1,19 @@
 @import "tailwindcss";
 
 /**
- * Departure Mono, version 1.500, of Helena Zhang. The licence is the SIL Open
- * Font License 1.1. The file `../fonts/DepartureMono-LICENSE.txt` holds it.
+ * JetBrains Mono, of the JetBrains Mono Project. The licence is the SIL Open
+ * Font License 1.1. The file `../fonts/JetBrainsMono-LICENSE.txt` holds it.
  *
  * The repository holds the font file: the application uses no external CDN.
- * The format is WOFF2 only, and that file is 22 kilobytes.
+ * The file holds the bold weight only, because the board shows no other
+ * weight. `pyftsubset` keeps the characters of the drum only: `" ABCDEFGHIJ
+ * KLMNOPQRSTUVWXYZ0123456789.:'/-"`. The format is WOFF2 only, and that file
+ * is 5 kilobytes.
  */
 @font-face {
-	font-family: "Departure Mono";
-	src: url("../fonts/DepartureMono-Regular.woff2") format("woff2");
-	font-weight: 400;
+	font-family: "JetBrains Mono";
+	src: url("../fonts/JetBrainsMono-Bold.woff2") format("woff2");
+	font-weight: 700;
 	font-style: normal;
 	/* `swap` shows the text immediately with the monospace font of the system.
 	   The board is the first content of the page, thus a blank text is worse
@@ -60,10 +63,10 @@
 	--color-flap-top: #262a2f;
 	--color-flap-base: #1a1d21;
 
-	/* Departure Mono is the font of the board. The list gives the monospace
+	/* JetBrains Mono is the font of the board. The list gives the monospace
 	   font of the system for the time of the load. */
 	--font-board:
-		"Departure Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+		"JetBrains Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
 		monospace;
 
 	/* The tokens of shadcn/ui. They receive the colours of the board. Thus a
@@ -112,9 +115,10 @@
  *
  * `::after` makes the line of the axis. That line goes above each card and it
  * takes no space of the character: a half that stops before the middle removes
- * a part of the character, and at 11 pixels that part is the bar of the A, of
- * the E and of the B. Paragraph 5.2 of `docs/architecture.md` gives the
- * examination.
+ * a part of the character, thus the bar of the A, of the E and of the B. The
+ * CSS gives the same half-leading above and below the character at each size
+ * of the font, thus the line of the axis stays at the middle of the capital
+ * letters. Paragraph 5.2 of `docs/architecture.md` gives the examination.
  */
 @utility flap {
 	position: relative;
@@ -125,6 +129,7 @@
 	border-radius: 0.1875rem;
 	background-color: var(--color-flap-edge);
 	font-family: var(--font-board);
+	font-weight: 700;
 	font-variant-numeric: tabular-nums;
 	perspective: 200px;
 

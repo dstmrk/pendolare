@@ -6,11 +6,10 @@ import { SplitFlapCell } from "./SplitFlapCell.tsx";
 /**
  * The appearance of one flap.
  *
- * The size is a multiple of 11 pixels. Departure Mono is a pixel font, and the
- * author gives that grid for an exact result. The size comes from an arbitrary
- * value with a length, not from a token of the theme: a class `text-flap-sm`
- * and the class `text-board-amber` have the same shape, thus `tailwind-merge`
- * reads the two as a colour and it removes the size.
+ * The size comes from an arbitrary value with a length, not from a token of
+ * the theme: a class `text-flap-sm` and the class `text-board-amber` have the
+ * same shape, thus `tailwind-merge` reads the two as a colour and it removes
+ * the size.
  *
  * The colour of a board of a station is white. The amber marks the delay and
  * the mark of the departure, and the red marks a train that RFI cancels.

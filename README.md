@@ -53,8 +53,8 @@ rules of the work.
 
 MIT. Refer to [`LICENSE`](LICENSE).
 
-The font of the board is [Departure Mono](https://departuremono.com) of Helena
-Zhang, with the SIL Open Font License 1.1.
+The font of the board is [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
+of the JetBrains Mono Project, with the SIL Open Font License 1.1.
 
 The mark, the two icons of the sound and the two icons of the buttons are
 `train-front`, `volume-2`, `volume-off`, `arrow-down-up` and `refresh-cw` of
