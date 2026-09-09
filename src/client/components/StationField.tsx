@@ -43,7 +43,21 @@ export function StationField({
 	const [query, setQuery] = useState("");
 	const [highlight, setHighlight] = useState(-1);
 	const [open, setOpen] = useState(false);
+	const [selected, setSelected] = useState<StationSummary | null>(value);
 	const blur = useRef<number | undefined>(undefined);
+
+	// The page changes the station of the field when the person inverts the two
+	// stations. The field then shows the name of the new station.
+	//
+	// The rule reads a station only. The field gives `null` at each character
+	// that the person writes, and a rule that reads `null` then removes the
+	// text of the person.
+	if (value !== null && value !== selected) {
+		setSelected(value);
+		setQuery(value.name);
+	} else if (value === null && selected !== null) {
+		setSelected(null);
+	}
 
 	const search = useQuery({
 		queryKey: ["stations", query],

@@ -61,8 +61,32 @@ const ROW = /<tr id="[^"]*" name="treno" class="row[^"]*">([\s\S]*?)<\/tr>/g;
 const STOPS_BLOCK =
 	/Fermate successive<\/div>\s*<div class="testoinfoaggiuntive">([\s\S]*?)<\/div>/;
 const STOP = /([^()]+?)\s*\((\d{1,2}:\d{2})\)/g;
-const LEAVING = /<td id="RExLampeggio"[\s\S]*?<img[^>]*alt="Si"/;
+const LEAVING = /<img[^>]*alt="Si"/;
 const MINUTES = /^-?\d+$/;
+
+/**
+ * The expression of each cell of a row.
+ *
+ * A cell of the table holds no other cell, thus each expression stops at the
+ * first `</td>`. An expression with no limit reads the cells after it: the cell
+ * of the mark of the departure then takes the `alt` of the button of the
+ * window, and each train departs.
+ *
+ * The expressions are constants: `parseBoard` reads 40 rows, and a new
+ * expression for each cell of each row is 280 objects for one page.
+ */
+const CELL = {
+	train: cellOf("RTreno"),
+	destination: cellOf("RStazione"),
+	clock: cellOf("ROrario"),
+	delay: cellOf("RRitardo"),
+	platform: cellOf("RBinario"),
+	leaving: cellOf("RExLampeggio"),
+} as const;
+
+function cellOf(id: string): RegExp {
+	return new RegExp(`<td id="${id}"[^>]*>([\\s\\S]*?)</td>`);
+}
 
 /** Removes the tags of one part of the page and gives one line of text. */
 function toText(html: string): string {
@@ -93,17 +117,14 @@ function decodeEntities(text: string): string {
 		.replace(/&amp;/g, "&");
 }
 
-/**
- * Gives the text of one cell of a row.
- *
- * A cell of the table holds no other cell, thus the expression stops at the
- * first `</td>`. An expression with no limit reads the cells after it: the cell
- * of the mark of the departure then takes the `alt` of the button of the
- * window.
- */
-function cell(row: string, id: string): string {
-	const found = new RegExp(`<td id="${id}"[^>]*>([\\s\\S]*?)</td>`).exec(row);
-	return found?.[1] === undefined ? "" : toText(found[1]);
+/** Gives the markup of one cell of a row. */
+function markupOf(row: string, cell: RegExp): string {
+	return cell.exec(row)?.[1] ?? "";
+}
+
+/** Gives the text of one cell of a row. */
+function textOf(row: string, cell: RegExp): string {
+	return toText(markupOf(row, cell));
 }
 
 /** Reads the cell of the delay. */
@@ -158,14 +179,14 @@ export function parseBoard(html: string): Board {
 	while (found !== null) {
 		const row = found[1] ?? "";
 		const stops = STOPS_BLOCK.exec(row);
-		const platform = cell(row, "RBinario");
+		const platform = textOf(row, CELL.platform);
 		rows.push({
-			train: cell(row, "RTreno"),
-			destination: cell(row, "RStazione"),
-			clock: cell(row, "ROrario"),
-			delay: parseDelay(cell(row, "RRitardo")),
+			train: textOf(row, CELL.train),
+			destination: textOf(row, CELL.destination),
+			clock: textOf(row, CELL.clock),
+			delay: parseDelay(textOf(row, CELL.delay)),
 			platform: platform === "" ? null : platform,
-			leaving: LEAVING.test(row),
+			leaving: LEAVING.test(markupOf(row, CELL.leaving)),
 			stops: stops?.[1] === undefined ? [] : parseStops(toText(stops[1])),
 		});
 		found = ROW.exec(html);
