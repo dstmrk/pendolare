@@ -1,15 +1,21 @@
 /**
  * The values of the board, as the flaps show them.
  *
- * A board of Solari holds one field of a fixed quantity of flaps. Therefore
- * each value receives the space that it needs, and the columns of two rows stay
- * one under the other. The empty position of the drum gives that space.
+ * A board of Solari holds one field of a quantity of flaps, and each row of a
+ * column holds the same quantity. Therefore the columns of two rows stay one
+ * under the other. `column` gives that quantity to each value.
+ *
+ * The quantity comes from the answer and not from a constant. The values of RFI
+ * hold a long tail: 89 per cent of the platforms hold no character or one
+ * character, but `2 F.E.R.` holds eight. A constant of five flaps then gives
+ * three empty flaps to each row, and it breaks the column of that platform.
+ * Paragraph 5.3 of `docs/architecture.md` gives the numbers.
  *
  * These functions are pure and they do no I/O. The file `.tsx` then holds the
  * elements and the state only.
  */
 
-import type { Journey } from "../../shared/journey.ts";
+import type { JourneyView } from "../../shared/api.ts";
 import type { Delay } from "../../shared/monitor.ts";
 
 /** The colour of a value on the board. */
@@ -23,40 +29,53 @@ export type Field = {
 	readonly label: string;
 };
 
-/** The quantity of flaps of each field of a fixed size. */
-export const WIDTH = {
-	train: 5,
-	clock: 5,
-	delay: 5,
-	platform: 5,
-	leaving: 1,
-} as const;
+/**
+ * The smallest quantity of flaps of a column.
+ *
+ * A column with no value still shows its housings. A board of a station holds
+ * the flaps of the delay also for a train with no delay.
+ */
+const MINIMUM = 2;
 
 /** The characters of an hour that the application does not hold. */
 const NO_CLOCK = "--:--";
 
-/**
- * Gives the text the quantity of characters of the field.
- *
- * A text that is longer keeps its characters: a board that cuts a value gives a
- * value that is not correct, and the column of that row is then wider.
- */
+/** Gives the text the quantity of characters of the field. */
 export function pad(value: string, width: number): string {
 	return value.padEnd(width, " ");
 }
 
-/** Gives the quantity of flaps of a column of a variable size. */
+/** Gives the quantity of flaps of a column. */
 export function columnWidth(values: readonly string[]): number {
-	return values.reduce((most, one) => Math.max(most, one.length), 0);
+	return values.reduce((most, one) => Math.max(most, one.length), MINIMUM);
+}
+
+/**
+ * Gives each value of a column the same quantity of flaps.
+ *
+ * A column of the right side holds the space before the value: the platform is
+ * a number, and a number reads better at the right side of its column.
+ */
+export function column(
+	fields: readonly Field[],
+	align: "left" | "right" = "left",
+): Field[] {
+	const width = columnWidth(fields.map((one) => one.text));
+	return fields.map((one) => ({
+		...one,
+		text:
+			align === "right" ? one.text.padStart(width, " ") : pad(one.text, width),
+	}));
 }
 
 /** The number of the train. */
-export function trainField(journey: Journey): Field {
-	return {
-		text: pad(journey.train, WIDTH.train),
-		tone: "text",
-		label: journey.train,
-	};
+export function trainField(journey: JourneyView): Field {
+	return { text: journey.train, tone: "text", label: journey.train };
+}
+
+/** An hour of the timetable, of the form `HH:MM`. */
+export function clockField(clock: string): Field {
+	return { text: clock, tone: "text", label: clock };
 }
 
 /**
@@ -69,11 +88,11 @@ export function trainField(journey: Journey): Field {
 export function delayField(delay: Delay): Field {
 	switch (delay.kind) {
 		case "onTime":
-			return { text: pad("", WIDTH.delay), tone: "text", label: "in orario" };
+			return { text: "", tone: "text", label: "in orario" };
 		case "minutes": {
 			const sign = delay.minutes > 0 ? "+" : "";
 			return {
-				text: pad(`${sign}${delay.minutes}`, WIDTH.delay),
+				text: `${sign}${delay.minutes}`,
 				tone: "amber",
 				label:
 					delay.minutes > 0
@@ -83,34 +102,21 @@ export function delayField(delay: Delay): Field {
 		}
 		case "unknown":
 			return {
-				text: pad("RIT", WIDTH.delay),
+				text: "RIT",
 				tone: "amber",
 				label: "in ritardo, minuti non indicati",
 			};
 		case "cancelled":
-			return {
-				text: pad("CANC", WIDTH.delay),
-				tone: "alert",
-				label: "cancellato",
-			};
+			return { text: "CANC", tone: "alert", label: "cancellato" };
 	}
 }
 
 /** The platform of the train. RFI gives no platform before the departure. */
 export function platformField(platform: string | null): Field {
 	return {
-		text: pad(platform ?? "", WIDTH.platform),
+		text: platform ?? "",
 		tone: "text",
 		label: platform === null ? "binario non indicato" : `binario ${platform}`,
-	};
-}
-
-/** The mark of the train that departs now. */
-export function leavingField(leaving: boolean): Field {
-	return {
-		text: leaving ? "X" : " ",
-		tone: "amber",
-		label: leaving ? "in partenza" : "",
 	};
 }
 
@@ -123,7 +129,7 @@ export function leavingField(leaving: boolean): Field {
  * A train that RFI cancels receives no hour: that train arrives at no hour. A
  * train with no list of stops also receives no hour, because RFI gives none.
  */
-export function arrivalField(journey: Journey): Field {
+export function arrivalField(journey: JourneyView): Field {
 	if (journey.delay.kind === "cancelled" || journey.arrival === null) {
 		return { text: NO_CLOCK, tone: "muted", label: "orario non disponibile" };
 	}

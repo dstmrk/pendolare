@@ -115,8 +115,8 @@ must do no I/O. Write a unit test for each new rule.
   character. A flap is a card with two halves, and it turns through the drum. A
   surface that turns one time is not a Solari. Paragraph 5.2 of
   `docs/architecture.md` gives the rules.
-- The characters of the board are white. The amber marks the delay and the mark
-  of the departure. The red marks a train that RFI cancels.
+- The characters of the board are white. The amber marks the delay and the hour
+  of arrival of a train with a delay. The red marks a train that RFI cancels.
 - Give a size of a multiple of 11 pixels to each text of the board:
   `text-[11px]`, `text-[22px]`. Departure Mono is a pixel font. Write the size as
   an arbitrary value with a length. A token `text-flap-sm` has the shape of a
@@ -127,14 +127,17 @@ must do no I/O. Write a unit test for each new rule.
   half that stops before the middle: that half removes the bar of the `A`, of
   the `E` and of the `B`. Paragraph 5.2 of `docs/architecture.md` gives the
   examination.
-- A telephone shows five of the seven columns, and a screen below `xl` shows the
+- A telephone shows five of the six columns, and a screen below `xl` shows the
   short name of the destination. Paragraph 5.3 of `docs/architecture.md` gives
   the three sizes.
 - Measure the width of the table after a change of a column. The head of a
   column that is longer than its value makes that column wider.
 - If the user selects `prefers-reduced-motion`, show the new value immediately.
-- Keep each field of the board at a fixed quantity of flaps. The columns of two
-  rows then stay one under the other.
+- Give each column the quantity of flaps of its longest value, with `column` of
+  `src/client/lib/board.ts`. The columns of two rows then stay one under the
+  other, and no row holds an empty flap that no value needs. A constant of five
+  flaps gives three empty flaps to each platform and it breaks the column of the
+  platform `2 F.E.R.`.
 
 The project has no `jsdom` and no library for the tests of a component.
 Therefore keep the logic of the client in `src/client/lib/`, with a test file.

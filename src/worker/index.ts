@@ -165,6 +165,13 @@ app.get("/api/journeys", async (c) => {
 	let board: ReturnType<typeof parseBoard>;
 	try {
 		board = parseBoard(await fetchBoard(from.id, c.executionCtx));
+		// Each page of the monitor holds the name of the station in its title.
+		// A page with no name is no monitor: RFI gives such a page for an error
+		// of its own. Without this rule the person reads `no train stops at
+		// that station`, and that answer is not correct.
+		if (board.station === "") {
+			throw new Error("RFI gives no monitor");
+		}
 	} catch {
 		return c.json({ error: "rfi" }, 502);
 	}

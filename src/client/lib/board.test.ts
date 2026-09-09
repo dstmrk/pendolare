@@ -1,29 +1,34 @@
 import { describe, expect, it } from "vitest";
-import type { Journey } from "../../shared/journey.ts";
+import type { JourneyView } from "../../shared/api.ts";
 import {
 	arrivalField,
+	clockField,
+	column,
 	columnWidth,
 	delayField,
-	leavingField,
+	type Field,
 	pad,
 	platformField,
 	trainField,
-	WIDTH,
 } from "./board.ts";
 
-function journeyOf(row: Partial<Journey>): Journey {
+function journeyOf(row: Partial<JourneyView>): JourneyView {
 	return {
 		train: "9323",
 		destination: "ROMA TERMINI",
+		destinationShort: "ROMA TERMINI",
 		departure: "14:50",
 		delay: { kind: "onTime" },
 		platform: "4",
-		leaving: false,
 		arrival: "15:45",
 		scheduledArrival: "15:45",
 		delayApplied: 0,
 		...row,
 	};
+}
+
+function fieldOf(text: string): Field {
+	return { text, tone: "text", label: text };
 }
 
 describe("pad", () => {
@@ -41,56 +46,84 @@ describe("columnWidth", () => {
 		expect(columnWidth(["ASTI", "ROMA TERMINI"])).toBe(12);
 	});
 
-	it("gives zero for a column with no value", () => {
-		expect(columnWidth([])).toBe(0);
+	it("gives the smallest quantity of flaps to a column with no value", () => {
+		// A board of a station shows the housings of a field with no value.
+		expect(columnWidth([])).toBe(2);
+		expect(columnWidth(["", ""])).toBe(2);
+		expect(columnWidth(["4"])).toBe(2);
 	});
 });
 
-describe("trainField", () => {
-	it("holds the quantity of flaps of the field", () => {
-		expect(trainField(journeyOf({ train: "9323" })).text).toBe("9323 ");
-		expect(trainField(journeyOf({ train: "26036" })).text).toBe("26036");
+describe("column", () => {
+	it("gives each value the same quantity of flaps", () => {
+		const found = column([fieldOf("9323"), fieldOf("26036")]);
+		expect(found.map((one) => one.text)).toEqual(["9323 ", "26036"]);
+	});
+
+	it("holds the space before the value of a column of the right side", () => {
+		const found = column([fieldOf("4"), fieldOf("1 SOT")], "right");
+		expect(found.map((one) => one.text)).toEqual(["    4", "1 SOT"]);
+	});
+
+	it("keeps the colour and the text of the screen reader", () => {
+		const found = column([{ text: "+5", tone: "amber", label: "cinque" }]);
+		expect(found[0]?.tone).toBe("amber");
+		expect(found[0]?.label).toBe("cinque");
+	});
+
+	it("gives no field for a column with no row", () => {
+		expect(column([])).toEqual([]);
+	});
+});
+
+describe("trainField and clockField", () => {
+	it("give the value with no space", () => {
+		expect(trainField(journeyOf({ train: "9323" })).text).toBe("9323");
+		expect(clockField("14:50").text).toBe("14:50");
 	});
 });
 
 describe("delayField", () => {
 	it("gives an empty field to a train with no delay", () => {
 		const field = delayField({ kind: "onTime" });
-		expect(field.text).toBe("     ");
+		expect(field.text).toBe("");
 		expect(field.tone).toBe("text");
 	});
 
 	it("gives the sign to a train with a delay", () => {
 		const field = delayField({ kind: "minutes", minutes: 55 });
-		expect(field.text).toBe("+55  ");
+		expect(field.text).toBe("+55");
 		expect(field.tone).toBe("amber");
 		expect(field.label).toBe("55 minuti di ritardo");
 	});
 
 	it("gives the sign of a train in advance", () => {
 		const field = delayField({ kind: "minutes", minutes: -3 });
-		expect(field.text).toBe("-3   ");
+		expect(field.text).toBe("-3");
 		expect(field.label).toBe("3 minuti di anticipo");
 	});
 
 	it("gives a mark to a delay with no quantity", () => {
-		expect(delayField({ kind: "unknown" }).text).toBe("RIT  ");
+		expect(delayField({ kind: "unknown" }).text).toBe("RIT");
 	});
 
 	it("gives the red to a train that RFI cancels", () => {
 		const field = delayField({ kind: "cancelled" });
-		expect(field.text).toBe("CANC ");
+		expect(field.text).toBe("CANC");
 		expect(field.tone).toBe("alert");
 	});
 
-	it("gives the same quantity of flaps to each state", () => {
+	it("holds four characters at the most", () => {
+		// The examination of 8522 rows of RFI gives `CANC` and `+120`. No value
+		// of that cell holds five characters.
 		for (const delay of [
 			{ kind: "onTime" },
-			{ kind: "minutes", minutes: 5 },
+			{ kind: "minutes", minutes: 120 },
+			{ kind: "minutes", minutes: -30 },
 			{ kind: "unknown" },
 			{ kind: "cancelled" },
 		] as const) {
-			expect(delayField(delay).text).toHaveLength(WIDTH.delay);
+			expect(delayField(delay).text.length).toBeLessThanOrEqual(4);
 		}
 	});
 });
@@ -100,20 +133,15 @@ describe("platformField", () => {
 		expect(platformField("1 SOT").text).toBe("1 SOT");
 	});
 
+	it("holds a platform of eight characters", () => {
+		// RFI writes `2 F.E.R.` at the station of Ferrara.
+		expect(platformField("2 F.E.R.").text).toBe("2 F.E.R.");
+	});
+
 	it("gives an empty field to a train with no platform", () => {
 		const field = platformField(null);
-		expect(field.text).toBe("     ");
+		expect(field.text).toBe("");
 		expect(field.label).toBe("binario non indicato");
-	});
-});
-
-describe("leavingField", () => {
-	it("gives the mark to a train that departs", () => {
-		expect(leavingField(true).text).toBe("X");
-	});
-
-	it("gives one flap to a train that does not depart", () => {
-		expect(leavingField(false).text).toBe(" ");
 	});
 });
 

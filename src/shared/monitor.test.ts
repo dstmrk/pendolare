@@ -33,7 +33,6 @@ describe("parseBoard", () => {
 		expect(row?.clock).toBe("14:50");
 		expect(row?.delay).toEqual({ kind: "minutes", minutes: 55 });
 		expect(row?.platform).toBe("4");
-		expect(row?.leaving).toBe(true);
 	});
 
 	it("reads the stops after the station, with the hour of the timetable", () => {
@@ -54,12 +53,17 @@ describe("parseBoard", () => {
 		expect(board.rows[1]?.destination).toBe("TORINO PORTA NUOVA");
 	});
 
-	it("does not read the mark of the departure of another cell", () => {
-		// The cell after the mark holds `alt="Maggiori informazioni treno"`. An
-		// expression with no limit takes that value and each row then departs.
-		expect(board.rows[0]?.leaving).toBe(true);
-		expect(board.rows[1]?.leaving).toBe(false);
-		expect(board.rows[2]?.leaving).toBe(false);
+	it("reads no cell after the cell of the platform", () => {
+		// Each expression of a cell stops at the first `</td>`. An expression
+		// with no limit reads the cells after it, and the platform then takes
+		// the text of another cell.
+		expect(board.rows.map((row) => row.platform)).toEqual([
+			"4",
+			"1",
+			"6",
+			null,
+			null,
+		]);
 	});
 
 	it("reads the delay Cancellato and the delay RITARDO", () => {

@@ -36,7 +36,10 @@ export function App() {
 	return (
 		<div className="mx-auto flex min-h-dvh max-w-6xl flex-col gap-6 px-3 pt-safe pb-safe sm:px-4">
 			<header>
-				<h1>
+				<h1 className="flex items-center gap-3">
+					{/* The mark holds the colour of the page, thus the square of
+					    the icon does not show on this surface. */}
+					<img src="/icon.svg" alt="" width="36" height="36" />
 					<SplitFlapText text={text.title} moves={false} size="md" />
 				</h1>
 				<p className="mt-2 text-board-muted text-sm">{text.tagline}</p>

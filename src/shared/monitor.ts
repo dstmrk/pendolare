@@ -40,8 +40,6 @@ export type BoardRow = {
 	readonly clock: string;
 	readonly delay: Delay;
 	readonly platform: string | null;
-	/** The board shows the mark of the departure for this train. */
-	readonly leaving: boolean;
 	readonly stops: readonly Stop[];
 };
 
@@ -71,7 +69,6 @@ const STOP = /([^()]+?)\s*\((\d{1,2}:\d{2})\)/g;
  * name `HAELT IN MONGUELFO/WELSBERG-GSIES`, and no station holds that name.
  */
 export const LIST_TITLE = /^\s*(?:FERMA A|HAELT IN)\s*:?\s*/i;
-const LEAVING = /<img[^>]*alt="Si"/;
 const MINUTES = /^-?\d+$/;
 
 /**
@@ -79,8 +76,7 @@ const MINUTES = /^-?\d+$/;
  *
  * A cell of the table holds no other cell, thus each expression stops at the
  * first `</td>`. An expression with no limit reads the cells after it: the cell
- * of the mark of the departure then takes the `alt` of the button of the
- * window, and each train departs.
+ * before the window then takes the text of the button of that window.
  *
  * The expressions are constants: `parseBoard` reads 40 rows, and a new
  * expression for each cell of each row is 280 objects for one page.
@@ -91,7 +87,6 @@ const CELL = {
 	clock: cellOf("ROrario"),
 	delay: cellOf("RRitardo"),
 	platform: cellOf("RBinario"),
-	leaving: cellOf("RExLampeggio"),
 } as const;
 
 function cellOf(id: string): RegExp {
@@ -127,14 +122,9 @@ function decodeEntities(text: string): string {
 		.replace(/&amp;/g, "&");
 }
 
-/** Gives the markup of one cell of a row. */
-function markupOf(row: string, cell: RegExp): string {
-	return cell.exec(row)?.[1] ?? "";
-}
-
 /** Gives the text of one cell of a row. */
 function textOf(row: string, cell: RegExp): string {
-	return toText(markupOf(row, cell));
+	return toText(cell.exec(row)?.[1] ?? "");
 }
 
 /** Reads the cell of the delay. */
@@ -197,7 +187,6 @@ export function parseBoard(html: string): Board {
 			clock: textOf(row, CELL.clock),
 			delay: parseDelay(textOf(row, CELL.delay)),
 			platform: platform === "" ? null : platform,
-			leaving: LEAVING.test(markupOf(row, CELL.leaving)),
 			stops: stops?.[1] === undefined ? [] : parseStops(toText(stops[1])),
 		});
 		found = ROW.exec(html);

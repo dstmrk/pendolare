@@ -18,6 +18,10 @@ import { defineConfig } from "vite";
  */
 export default defineConfig({
 	plugins: [react(), tailwindcss(), cloudflare()],
+	// The root of Vite is the root of the repository, thus the directory of the
+	// static files needs its path. Without it Vite reads `./public`, and the
+	// icon of the application never arrives in `dist/client`.
+	publicDir: "src/client/public",
 	build: {
 		outDir: "dist",
 		emptyOutDir: true,

@@ -14,7 +14,6 @@ split-flap displays.
 | Orario | The hour of departure of the timetable. |
 | Ritardo | The delay at the station of departure. |
 | Binario | The platform. |
-| In partenza | The mark of the train that departs now. |
 | Arrivo previsto | The hour of arrival at your station. |
 
 ## What Pendolare is not
@@ -56,3 +55,6 @@ MIT. Refer to [`LICENSE`](LICENSE).
 
 The font of the board is [Departure Mono](https://departuremono.com) of Helena
 Zhang, with the SIL Open Font License 1.1.
+
+The mark is the icon `train-front` of [Lucide](https://lucide.dev), with the ISC
+licence.

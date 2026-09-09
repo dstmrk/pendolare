@@ -32,7 +32,6 @@ function boardOf(row: Partial<Board["rows"][number]>): Board {
 				clock: "10:00",
 				delay: { kind: "onTime" },
 				platform: "1",
-				leaving: false,
 				stops: [{ name: "MILANO P.GAR", clock: "11:00" }],
 				...row,
 			},

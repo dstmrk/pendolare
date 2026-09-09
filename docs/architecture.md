@@ -313,30 +313,42 @@ files in the repository. Do not use an external CDN.
 
 ### 5.3 The table
 
-Each field of the board holds a fixed quantity of flaps, thus the columns of two
-rows stay one under the other. The column of the destination takes the length of
-the longest name of the answer. `src/client/lib/board.ts` gives those values.
+Each column takes the quantity of flaps of its longest value, and `column` of
+`src/client/lib/board.ts` gives that quantity to each row. The columns of two
+rows then stay one under the other, and no row holds an empty flap that no value
+needs.
 
-A value that is longer than its field keeps its characters. A board that cuts a
-value gives a value that is not correct.
+The quantity comes from the answer and not from a constant. The values of RFI
+hold a long tail. An examination of 8522 rows gives these numbers:
 
-The columns are the columns of the monitor of RFI, with no carrier and no
-category. The platform comes before the delay: a person who runs to a train
-reads the platform first. The last column holds the hour of arrival at the
-station of the user, and that column is the reason of the application.
+| Column | Values | Longest value |
+|---|---|---|
+| Binario | 89% hold no character or one character, 96.5% hold two | `2 F.E.R.`, of eight characters |
+| Ritardo | 87.8% hold no character | `CANC` and `+120`, of four characters |
+
+A constant of five flaps thus gives three empty flaps to each platform, and it
+breaks the column of the platform `2 F.E.R.`. A column with no value keeps two
+flaps: a board of a station shows the housings of a field with no value.
+
+The column of the platform holds the space before its value. The platform is a
+number, and a number reads better at the right side of its column.
+
+The columns are the columns of the monitor of RFI, with no carrier, no category
+and no mark of the departure. The platform comes before the delay: a person who
+runs to a train reads the platform first. The last column holds the hour of
+arrival at the station of the user, and that column is the reason of the
+application.
 
 The board holds three sizes:
 
 | Item | Below `md` | `md` to `xl` | `xl` and more |
 |---|---|---|---|
 | Treno | no | yes | yes |
-| In partenza | no | yes | yes |
 | Destinazione | short name | short name | official name |
 | Head of the arrival | `Arrivo` | `Arrivo` | `Arrivo previsto` |
 
-A telephone shows five columns. The number of the train and the mark of the
-departure go away: a person who knows the two stations reads the hour, and those
-two values are secondary.
+A telephone shows five of the six columns. The number of the train goes away: a
+person who knows the two stations reads the hour, and that value is secondary.
 
 The destination takes the short name of RFI below `xl`: `MILANO P.GAR` and not
 `MILANO PORTA GARIBALDI`. A board of a station writes the same name, and the
@@ -345,8 +357,7 @@ station of another country also: the catalogue holds no such station.
 
 A head that is longer than its column makes that column wider. `ARRIVO PREVISTO`
 is 15 characters against five flaps, thus that head becomes `Arrivo` below `xl`.
-`IN PARTENZA` is 11 characters against one flap, thus that head goes on two
-lines.
+Measure the width of the table after a change of a column.
 
 `useShortNames` of `src/client/lib/media.ts` reads the width in JavaScript. A
 rule of CSS also hides a column, but the two names of the destination then stay
@@ -367,6 +378,24 @@ finger.
 
 The size of the text of a field is 16 pixels. Safari on iOS makes the page
 larger when the text of a field is below that size.
+
+### 5.5 The mark
+
+The mark of the application is the icon `train-front` of Lucide, on the colour
+of the page. Lucide holds the ISC licence, and `README.md` gives that note.
+
+`src/client/public/icon.svg` is the one file of the mark. The head of
+`index.html` gives it to the tab of the browser, and the masthead of the page
+shows the same file. The square of the icon holds the colour of the page, thus
+that square does not show on a surface of the application.
+
+`icon-192.png` is for a browser that reads no SVG icon. `icon-180.png` is for
+iOS: that system asks for 180 pixels and it applies its own mask, thus that file
+holds no rounded corner.
+
+`vite.config.ts` holds `publicDir`. The root of Vite is the root of the
+repository, thus the directory of the static files needs its path: without it
+Vite reads `./public`, and the three files never arrive in `dist/client`.
 
 ## 6. The configuration of TypeScript
 

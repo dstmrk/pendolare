@@ -22,7 +22,6 @@ export type Journey = {
 	readonly departure: string;
 	readonly delay: Delay;
 	readonly platform: string | null;
-	readonly leaving: boolean;
 	/**
 	 * The hour of arrival at the station of the user, with the delay added.
 	 *
@@ -105,7 +104,6 @@ export function findJourneys(
 			departure: row.clock,
 			delay: row.delay,
 			platform: row.platform,
-			leaving: row.leaving,
 			scheduledArrival: scheduled,
 			arrival: scheduled === null ? null : addMinutes(scheduled, delayApplied),
 			delayApplied,
