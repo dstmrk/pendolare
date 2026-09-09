@@ -128,6 +128,19 @@ describe("parseStops", () => {
 		]);
 	});
 
+	it("removes the title of a train of Alto Adige", () => {
+		// RFI writes `HAELT IN` for a train of that region, and it writes the
+		// German text with no accent.
+		expect(
+			parseStops(
+				"HAELT IN MONGUELFO/WELSBERG-GSIES (17:21) - S.CANDIDO/INNICHEN (17:35)",
+			),
+		).toEqual([
+			{ name: "MONGUELFO/WELSBERG-GSIES", clock: "17:21" },
+			{ name: "S.CANDIDO/INNICHEN", clock: "17:35" },
+		]);
+	});
+
 	it("gives an empty list for an empty text", () => {
 		expect(parseStops("")).toEqual([]);
 		expect(parseStops("FERMA A:")).toEqual([]);

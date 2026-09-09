@@ -61,6 +61,16 @@ const ROW = /<tr id="[^"]*" name="treno" class="row[^"]*">([\s\S]*?)<\/tr>/g;
 const STOPS_BLOCK =
 	/Fermate successive<\/div>\s*<div class="testoinfoaggiuntive">([\s\S]*?)<\/div>/;
 const STOP = /([^()]+?)\s*\((\d{1,2}:\d{2})\)/g;
+
+/**
+ * The title of the list of the stops.
+ *
+ * RFI writes `FERMA A:` for an Italian train and `HAELT IN` for a train of
+ * Alto Adige. RFI writes the German text with no accent: `MUEHLBACH`, not
+ * `MÜHLBACH`. Without the second title the first stop of such a train holds the
+ * name `HAELT IN MONGUELFO/WELSBERG-GSIES`, and no station holds that name.
+ */
+export const LIST_TITLE = /^\s*(?:FERMA A|HAELT IN)\s*:?\s*/i;
 const LEAVING = /<img[^>]*alt="Si"/;
 const MINUTES = /^-?\d+$/;
 
@@ -147,13 +157,14 @@ export function parseDelay(text: string): Delay {
  * Reads the window `Fermate successive` of one row.
  *
  * The text has the form `FERMA A: RHO FIERA (15:26) - MILANO P.GAR (15:45)`.
+ * A train of Alto Adige holds the title `HAELT IN`.
  * The name of a station can hold a hyphen, for example
  * `ACQUEDOLCI-S.FRATELLO`, thus the expression takes each character before the
  * parenthesis and then removes the hyphen of the separator. The hour can hold
  * one digit for the hours: a stop at `(3:23)` in the night.
  */
 export function parseStops(text: string): Stop[] {
-	const list = text.replace(/^\s*FERMA A\s*:?/i, "");
+	const list = text.replace(LIST_TITLE, "");
 	const stops: Stop[] = [];
 	STOP.lastIndex = 0;
 	let found = STOP.exec(list);

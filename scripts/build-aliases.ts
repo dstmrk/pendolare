@@ -27,8 +27,8 @@
  * ```
  */
 
-import { parseBoard } from "../src/shared/monitor.ts";
-import { normalise } from "../src/shared/stations.ts";
+import { LIST_TITLE, parseBoard } from "../src/shared/monitor.ts";
+import { normalise, type Station } from "../src/shared/stations.ts";
 import { readCatalogue, writeCatalogue } from "./catalogue.ts";
 import { monitorUrl, pool, read } from "./rfi.ts";
 
@@ -147,16 +147,42 @@ for (const key of shared) {
 	console.log(`the name ${key} gives ${names.join(" and ")}: it goes away`);
 }
 
+/**
+ * The short names of one station, with no name that gives nothing.
+ *
+ * A name goes away with one of these four rules:
+ *
+ * 1. the name is the official name of the station;
+ * 2. the name is the name of another station;
+ * 3. the name holds the title of the list. A run before the correction of
+ *    `parseStops` wrote `HAELT IN MONGUELFO/WELSBERG-GSIES`, and no station
+ *    holds that name;
+ * 4. another name of the station gives the same form of `normalise`. RFI writes
+ *    the apostrophe of `CAPO D'ORLANDO` in three ways, and `isStation` reads the
+ *    three as one name.
+ */
+function aliasesOf(station: Station): string[] {
+	const official = normalise(station.name);
+	const names = [...(found.get(station.id) ?? []), ...station.aliases].sort();
+	const kept = new Map<string, string>();
+	for (const name of names) {
+		const key = normalise(name);
+		if (key === "" || key === official || shared.has(key)) {
+			continue;
+		}
+		if (LIST_TITLE.test(name)) {
+			continue;
+		}
+		if (!kept.has(key)) {
+			kept.set(key, name);
+		}
+	}
+	return [...kept.values()];
+}
+
 let added = 0;
 const next = stations.map((station) => {
-	const official = normalise(station.name);
-	const names = new Set([...(found.get(station.id) ?? []), ...station.aliases]);
-	const aliases = [...names]
-		.filter((name) => {
-			const key = normalise(name);
-			return key !== official && key !== "" && !shared.has(key);
-		})
-		.sort();
+	const aliases = aliasesOf(station);
 	added += Math.max(0, aliases.length - station.aliases.length);
 	return { ...station, aliases };
 });
