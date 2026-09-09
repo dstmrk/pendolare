@@ -1,0 +1,18 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "pendolare",
+	"main": "./src/worker/index.ts",
+	"compatibility_date": "2026-09-09",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": { "enabled": true },
+	"assets": {
+		// The client is a single page: every path that is not a file gives
+		// `index.html`, and the router of the client reads the path.
+		"directory": "./dist/client",
+		"not_found_handling": "single-page-application",
+		"binding": "ASSETS",
+		// Only the API goes to the Worker. Each other request takes a static
+		// file, thus the Worker does not start for the page or for the font.
+		"run_worker_first": ["/api/*"]
+	}
+}
