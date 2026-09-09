@@ -127,8 +127,11 @@ must do no I/O. Write a unit test for each new rule.
   half that stops before the middle: that half removes the bar of the `A`, of
   the `E` and of the `B`. Paragraph 5.2 of `docs/architecture.md` gives the
   examination.
-- A telephone shows five of the seven columns, and the destination takes its
-  short name. Paragraph 5.3 of `docs/architecture.md` gives the table.
+- A telephone shows five of the seven columns, and a screen below `xl` shows the
+  short name of the destination. Paragraph 5.3 of `docs/architecture.md` gives
+  the three sizes.
+- Measure the width of the table after a change of a column. The head of a
+  column that is longer than its value makes that column wider.
 - If the user selects `prefers-reduced-motion`, show the new value immediately.
 - Keep each field of the board at a fixed quantity of flaps. The columns of two
   rows then stay one under the other.

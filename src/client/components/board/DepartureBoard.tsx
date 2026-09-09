@@ -10,7 +10,7 @@ import {
 	trainField,
 	WIDTH,
 } from "../../lib/board.ts";
-import { useNarrowScreen } from "../../lib/media.ts";
+import { useShortNames } from "../../lib/media.ts";
 import { text } from "../../text.ts";
 import { SplitFlapText } from "./SplitFlapText.tsx";
 
@@ -44,9 +44,9 @@ export function DepartureBoard({
 	from: string;
 	to: string;
 }) {
-	const narrow = useNarrowScreen();
+	const short = useShortNames();
 	const destinationOf = (journey: JourneyView) =>
-		narrow ? journey.destinationShort : journey.destination;
+		short ? journey.destinationShort : journey.destination;
 	const wide = columnWidth(journeys.map(destinationOf));
 
 	return (
@@ -60,7 +60,9 @@ export function DepartureBoard({
 						<Head>{text.columnTime}</Head>
 						<Head>{text.columnPlatform}</Head>
 						<Head>{text.columnDelay}</Head>
-						<Head className={WIDE_ONLY}>{text.columnLeaving}</Head>
+						<Head className={WIDE_ONLY} wrap>
+							{text.columnLeaving}
+						</Head>
 						<Head short={text.columnArrivalShort}>{text.columnArrival}</Head>
 					</tr>
 				</thead>
@@ -104,30 +106,36 @@ export function DepartureBoard({
 /**
  * The head of one column.
  *
- * `short` gives a head for a telephone. A head that is longer than its column
- * makes that column wider: `ARRIVO PREVISTO` is 15 characters, and the value of
- * that column holds five flaps.
+ * A head that is longer than its column makes that column wider: `ARRIVO
+ * PREVISTO` is 15 characters and its value holds five flaps, and `IN PARTENZA`
+ * is 11 characters and its value holds one flap.
+ *
+ * `short` gives a second head for a screen below the breakpoint `xl`. `wrap`
+ * puts the head on two lines, thus its column holds the width of one word.
  */
 function Head({
 	children,
 	short,
+	wrap,
 	className,
 }: {
 	children: string;
 	short?: string;
+	/** The head goes on two lines. Its column then holds the width of one word. */
+	wrap?: boolean;
 	className?: string;
 }) {
 	return (
 		<th
 			scope="col"
-			className={`whitespace-nowrap px-0.5 py-2 text-left font-board text-[11px] text-board-muted uppercase tracking-widest md:px-2 ${className ?? ""}`}
+			className={`px-0.5 py-2 text-left font-board text-[11px] text-board-muted uppercase tracking-widest md:px-2 ${wrap === true ? "" : "whitespace-nowrap"} ${className ?? ""}`}
 		>
 			{short === undefined ? (
 				children
 			) : (
 				<>
-					<span className="md:hidden">{short}</span>
-					<span className="hidden md:inline">{children}</span>
+					<span className="xl:hidden">{short}</span>
+					<span className="hidden xl:inline">{children}</span>
 				</>
 			)}
 		</th>

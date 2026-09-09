@@ -325,36 +325,40 @@ category. The platform comes before the delay: a person who runs to a train
 reads the platform first. The last column holds the hour of arrival at the
 station of the user, and that column is the reason of the application.
 
-A telephone shows five of the seven columns:
+The board holds three sizes:
 
-| Column | Telephone | Screen of `md` and more |
-|---|---|---|
-| Treno | no | yes |
-| Destinazione | short name | official name |
-| Orario | yes | yes |
-| Binario | yes | yes |
-| Ritardo | yes | yes |
-| In partenza | no | yes |
-| Arrivo previsto | yes, with a short head | yes |
+| Item | Below `md` | `md` to `xl` | `xl` and more |
+|---|---|---|---|
+| Treno | no | yes | yes |
+| In partenza | no | yes | yes |
+| Destinazione | short name | short name | official name |
+| Head of the arrival | `Arrivo` | `Arrivo` | `Arrivo previsto` |
 
-The number of the train and the mark of the departure go away: a person who
-knows the two stations reads the hour, and those two values are secondary.
+A telephone shows five columns. The number of the train and the mark of the
+departure go away: a person who knows the two stations reads the hour, and those
+two values are secondary.
 
-The destination takes the short name of RFI: `MILANO P.GAR` and not `MILANO
-PORTA GARIBALDI`. A board of a station writes the same name, and the catalogue
-holds it. A station with no short name keeps its official name, and a station of
-another country also: the catalogue holds no such station.
+The destination takes the short name of RFI below `xl`: `MILANO P.GAR` and not
+`MILANO PORTA GARIBALDI`. A board of a station writes the same name, and the
+catalogue holds it. A station with no short name keeps its official name, and a
+station of another country also: the catalogue holds no such station.
 
-The head of the last column is `Arrivo` on a telephone. A head that is longer
-than its column makes that column wider, and `ARRIVO PREVISTO` is 15 characters
-against five flaps.
+A head that is longer than its column makes that column wider. `ARRIVO PREVISTO`
+is 15 characters against five flaps, thus that head becomes `Arrivo` below `xl`.
+`IN PARTENZA` is 11 characters against one flap, thus that head goes on two
+lines.
 
-`useNarrowScreen` of `src/client/lib/media.ts` reads the width. A rule of CSS
-also hides a column, but the two names of the destination then stay both in the
-page: the flaps of that column are 40 per cent of the elements of the board.
+`useShortNames` of `src/client/lib/media.ts` reads the width in JavaScript. A
+rule of CSS also hides a column, but the two names of the destination then stay
+both in the page: the flaps of that column are 40 per cent of the elements of
+the board.
 
-With those rules the table is 364 pixels on a screen of 390 pixels. The surface
-around the table moves to the side for a screen that is smaller.
+With those rules the table needs no movement to the side at 390, 768, 1024, 1280
+and 1440 pixels. A name of more than 27 characters at `xl` is wider than the
+page: the surface around the table then moves to the side.
+
+The width of the page is `max-w-6xl`. At `max-w-5xl` the seven columns of a name
+of 27 characters are 1018 pixels against 990 pixels of the page.
 
 ### 5.4 The telephone
 
