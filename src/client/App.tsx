@@ -54,32 +54,41 @@ export function App() {
 				<SoundToggle />
 			</header>
 
-			<section className="grid gap-4 sm:grid-cols-2">
-				<StationField
-					label={text.from}
-					placeholder={text.fromPlaceholder}
-					value={from}
-					onChange={setFrom}
-				/>
-				<StationField
-					label={text.to}
-					placeholder={text.toPlaceholder}
-					value={to}
-					onChange={setTo}
-				/>
-			</section>
+			<div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+				<section className="grid gap-4 sm:grid-cols-2">
+					<StationField
+						label={text.from}
+						placeholder={text.fromPlaceholder}
+						value={from}
+						onChange={setFrom}
+					/>
+					<StationField
+						label={text.to}
+						placeholder={text.toPlaceholder}
+						value={to}
+						onChange={setTo}
+					/>
+				</section>
 
-			<div>
-				<Button
-					variant="outline"
-					disabled={from === null && to === null}
-					onClick={() => {
-						setFrom(to);
-						setTo(from);
-					}}
-				>
-					{text.swap}
-				</Button>
+				<div className="flex gap-3">
+					<Button
+						variant="outline"
+						disabled={from === null && to === null}
+						onClick={() => {
+							setFrom(to);
+							setTo(from);
+						}}
+					>
+						{text.swap}
+					</Button>
+					<Button
+						variant="outline"
+						disabled={!ready || board.isFetching}
+						onClick={() => board.refetch()}
+					>
+						{text.refresh}
+					</Button>
+				</div>
 			</div>
 
 			{/* The board is always on the page. Before the first answer it shows

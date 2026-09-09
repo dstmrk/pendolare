@@ -13,6 +13,7 @@ export const text = {
 	fromPlaceholder: "Cerca la stazione di partenza",
 	toPlaceholder: "Cerca la stazione di arrivo",
 	swap: "Inverti le due stazioni",
+	refresh: "Aggiorna il tabellone",
 	soundOn: "Attiva il suono dei flap",
 	soundOff: "Disattiva il suono dei flap",
 	noStation: "Nessuna stazione con questo nome",
