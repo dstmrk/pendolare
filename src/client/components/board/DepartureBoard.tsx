@@ -92,6 +92,7 @@ export function DepartureBoard({
 			delay: column(
 				values((one) => delayField(one.delay)),
 				MINIMUM.delay,
+				"right",
 			),
 			arrival: column(values(arrivalField), MINIMUM.arrival),
 		};
