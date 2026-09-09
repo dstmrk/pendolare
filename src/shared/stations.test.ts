@@ -5,6 +5,7 @@ import {
 	normalise,
 	type Station,
 	searchStations,
+	shortestName,
 } from "./stations.ts";
 
 const TORINO_PS: Station = {
@@ -37,6 +38,8 @@ const BARI: Station = {
 	name: "BARI S.RITA",
 	aliases: ["BARI S. RITA"],
 };
+
+const ROMA: Station = { id: 2416, name: "ROMA TERMINI", aliases: [] };
 
 const ALL = [TORINO_PS, TORINO_PN, FIRENZE, RHO, MILANO, BARI];
 
@@ -81,6 +84,22 @@ describe("isStation", () => {
 
 	it("gives each name of the station", () => {
 		expect(namesOf(RHO)).toEqual(["RHO FIERA", "RHO FIERA MILANO"]);
+	});
+});
+
+describe("shortestName", () => {
+	it("gives the shortest short name", () => {
+		expect(shortestName(TORINO_PS)).toBe("TORINO P.S.");
+	});
+
+	it("gives the official name of a station with no short name", () => {
+		expect(shortestName(ROMA)).toBe("ROMA TERMINI");
+	});
+
+	it("gives the official name when it is shorter than each short name", () => {
+		// RFI writes `RHO FIERA MILANO` in the list of the stops, and that name
+		// is longer than the official name.
+		expect(shortestName(RHO)).toBe("RHO FIERA");
 	});
 });
 

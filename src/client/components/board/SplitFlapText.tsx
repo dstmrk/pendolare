@@ -23,7 +23,10 @@ const flapCell = cva("", {
 			muted: "text-board-muted",
 		},
 		size: {
-			sm: "px-[3px] text-[11px] [--flap-h:22px]",
+			// A telephone holds five columns of flaps in 390 pixels, thus the
+			// small size gives one pixel of space at each side. A screen of the
+			// breakpoint `md` gives three pixels.
+			sm: "px-px text-[11px] [--flap-h:22px] md:px-[3px]",
 			md: "px-1 text-[22px] [--flap-h:33px]",
 		},
 	},
@@ -61,9 +64,12 @@ export function SplitFlapText({
 	size?: VariantProps<typeof flapCell>["size"];
 }) {
 	return (
-		<span className="inline-flex items-stretch gap-[2px]">
+		<span className="inline-flex items-stretch gap-px md:gap-[2px]">
 			<span className="sr-only">{label ?? text}</span>
-			<span aria-hidden="true" className="inline-flex items-stretch gap-[2px]">
+			<span
+				aria-hidden="true"
+				className="inline-flex items-stretch gap-px md:gap-[2px]"
+			>
 				{toFlapCells(text).map((cell) => (
 					<SplitFlapCell
 						key={cell.position}

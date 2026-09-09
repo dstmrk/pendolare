@@ -55,6 +55,22 @@ export function isStation(station: Station, name: string): boolean {
 	return namesOf(station).some((one) => normalise(one) === value);
 }
 
+/**
+ * Gives the shortest name of a station.
+ *
+ * A board of a station holds a field of a fixed quantity of flaps, thus it
+ * writes `MILANO P.GAR` and not `MILANO PORTA GARIBALDI`. The short names come
+ * from RFI, thus the short name of the board is the name that a person reads in
+ * a station.
+ *
+ * A station with no short name gives its official name.
+ */
+export function shortestName(station: Station): string {
+	return namesOf(station).reduce((best, one) =>
+		one.length < best.length ? one : best,
+	);
+}
+
 /** The order of a result: a smaller value is a better result. */
 const EXACT = 0;
 const PREFIX = 1;

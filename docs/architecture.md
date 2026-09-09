@@ -273,6 +273,17 @@ middle of the housing. The board holds one card for each character of the drum,
 and the cards fall one after the other until the correct character arrives. A
 surface that turns one time is not a Solari.
 
+**The line of the axis takes no space of the character.** The two halves hold
+one half of the height each, and the line comes from `::after` of the housing,
+above the card. A half that stops before the middle removes a band of the
+character: at a text of 11 pixels the capital letters are 7 pixels high, and a
+band of 2 pixels removes the bar of the `A`, of the `E`, of the `B` and of the
+`8`. An examination of the same letters with four values of that band gives the
+rule: a band of 2 pixels makes the `A` a `Λ`, a band of 1 pixel keeps a part of
+the defect, and a line above the character keeps each letter. On a real board
+the two halves of the card touch, and the reader sees a shadow: the card loses
+no ink.
+
 The drum holds the empty position, the letters, the digits and the punctuation:
 `" ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:'/-"`. It holds the two points, because
 the board shows an hour. It holds the point, the apostrophe, the solidus and the
@@ -309,8 +320,41 @@ the longest name of the answer. `src/client/lib/board.ts` gives those values.
 A value that is longer than its field keeps its characters. A board that cuts a
 value gives a value that is not correct.
 
-The table is wider than a telephone. The surface around the table moves to the
-side, thus the page never moves to the side.
+The columns are the columns of the monitor of RFI, with no carrier and no
+category. The platform comes before the delay: a person who runs to a train
+reads the platform first. The last column holds the hour of arrival at the
+station of the user, and that column is the reason of the application.
+
+A telephone shows five of the seven columns:
+
+| Column | Telephone | Screen of `md` and more |
+|---|---|---|
+| Treno | no | yes |
+| Destinazione | short name | official name |
+| Orario | yes | yes |
+| Binario | yes | yes |
+| Ritardo | yes | yes |
+| In partenza | no | yes |
+| Arrivo previsto | yes, with a short head | yes |
+
+The number of the train and the mark of the departure go away: a person who
+knows the two stations reads the hour, and those two values are secondary.
+
+The destination takes the short name of RFI: `MILANO P.GAR` and not `MILANO
+PORTA GARIBALDI`. A board of a station writes the same name, and the catalogue
+holds it. A station with no short name keeps its official name, and a station of
+another country also: the catalogue holds no such station.
+
+The head of the last column is `Arrivo` on a telephone. A head that is longer
+than its column makes that column wider, and `ARRIVO PREVISTO` is 15 characters
+against five flaps.
+
+`useNarrowScreen` of `src/client/lib/media.ts` reads the width. A rule of CSS
+also hides a column, but the two names of the destination then stay both in the
+page: the flaps of that column are 40 per cent of the elements of the board.
+
+With those rules the table is 364 pixels on a screen of 390 pixels. The surface
+around the table moves to the side for a screen that is smaller.
 
 ### 5.4 The telephone
 

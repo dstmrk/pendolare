@@ -34,7 +34,7 @@ export function App() {
 	});
 
 	return (
-		<div className="mx-auto flex min-h-dvh max-w-5xl flex-col gap-6 px-4 pt-safe pb-safe">
+		<div className="mx-auto flex min-h-dvh max-w-5xl flex-col gap-6 px-3 pt-safe pb-safe sm:px-4">
 			<header>
 				<h1>
 					<SplitFlapText text={text.title} moves={false} size="md" />

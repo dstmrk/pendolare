@@ -1,0 +1,47 @@
+# The examination of each change.
+#
+# The section Commands of CLAUDE.md gives four commands before a commit. A
+# person can forget one command. This workflow runs each one, thus a pull
+# request shows the result before the merge.
+#
+# The workflow also makes the build. `npm run build` starts the plugin of
+# Cloudflare, and that plugin reads `wrangler.jsonc` and writes the Worker: a
+# defect of that configuration stops no test, but it stops the deployment.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# The workflow reads the repository. It writes nothing.
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      # Node 22 LTS. Paragraph 2.1 of docs/architecture.md gives the reason.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      # One call of `tsc` for each environment. The Worker has no DOM.
+      # Paragraph 6 of docs/architecture.md gives the reason.
+      - name: Types
+        run: npm run typecheck
+
+      - name: Lint and format
+        run: npm run check
+
+      - name: Build
+        run: npm run build

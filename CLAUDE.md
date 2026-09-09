@@ -123,6 +123,12 @@ must do no I/O. Write a unit test for each new rule.
   colour, thus `tailwind-merge` removes it and keeps `text-board-amber`.
 - Give `aria-hidden` to the flaps. Put the correct value in an element that is
   not visible.
+- The line of the axis of a flap goes above the character. Do not make it with a
+  half that stops before the middle: that half removes the bar of the `A`, of
+  the `E` and of the `B`. Paragraph 5.2 of `docs/architecture.md` gives the
+  examination.
+- A telephone shows five of the seven columns, and the destination takes its
+  short name. Paragraph 5.3 of `docs/architecture.md` gives the table.
 - If the user selects `prefers-reduced-motion`, show the new value immediately.
 - Keep each field of the board at a fixed quantity of flaps. The columns of two
   rows then stay one under the other.

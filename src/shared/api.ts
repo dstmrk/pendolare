@@ -25,6 +25,17 @@ export type StationsAnswer = {
 	readonly stations: readonly StationSummary[];
 };
 
+/**
+ * One train of the answer, with the short name of its destination.
+ *
+ * A board of a station writes `MILANO P.GAR` and not `MILANO PORTA GARIBALDI`.
+ * The Worker holds the catalogue, thus the Worker gives the two names and the
+ * page selects one: a narrow screen holds no space for the official name.
+ */
+export type JourneyView = Journey & {
+	readonly destinationShort: string;
+};
+
 /** The answer of `GET /api/journeys`. */
 export type JourneysAnswer = {
 	readonly from: StationSummary;
@@ -33,7 +44,7 @@ export type JourneysAnswer = {
 	readonly updatedAt: string | null;
 	/** The quantity of trains of the board, before the selection. */
 	readonly scanned: number;
-	readonly journeys: readonly Journey[];
+	readonly journeys: readonly JourneyView[];
 };
 
 /** The kind of an error of the API. */

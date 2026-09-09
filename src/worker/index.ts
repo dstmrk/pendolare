@@ -8,7 +8,12 @@ import {
 } from "../shared/api.ts";
 import { findJourneys } from "../shared/journey.ts";
 import { parseBoard } from "../shared/monitor.ts";
-import { type Station, searchStations } from "../shared/stations.ts";
+import {
+	normalise,
+	type Station,
+	searchStations,
+	shortestName,
+} from "../shared/stations.ts";
 
 /**
  * The API of the application.
@@ -24,6 +29,22 @@ import { type Station, searchStations } from "../shared/stations.ts";
 
 const stations: Station[] = catalogue;
 const byId = new Map(stations.map((one) => [one.id, one]));
+
+/**
+ * The stations by their official name.
+ *
+ * The column of the destination of RFI holds the official name, and the page
+ * needs the short name of that station. A train to another country holds a
+ * station that the catalogue does not have, and that train keeps its official
+ * name.
+ */
+const byName = new Map(stations.map((one) => [normalise(one.name), one]));
+
+/** Gives the short name of a station of the column of the destination. */
+function shortNameOf(name: string): string {
+	const station = byName.get(normalise(name));
+	return station === undefined ? name : shortestName(station);
+}
 
 /** The address of the monitor of departures of one station. */
 const MONITOR =
@@ -154,7 +175,10 @@ app.get("/api/journeys", async (c) => {
 		to: { id: to.id, name: to.name },
 		updatedAt: board.updatedAt,
 		scanned: board.rows.length,
-		journeys: findJourneys(board, to, query.data.limit),
+		journeys: findJourneys(board, to, query.data.limit).map((one) => ({
+			...one,
+			destinationShort: shortNameOf(one.destination),
+		})),
 	};
 	return c.json(answer);
 });
