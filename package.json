@@ -1,0 +1,47 @@
+{
+	"name": "pendolare",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=22"
+	},
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"deploy": "vite build && wrangler deploy",
+		"preview": "vite preview",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit",
+		"check": "biome check .",
+		"fix": "biome check --write .",
+		"types": "wrangler types",
+		"data:stations": "node --experimental-strip-types scripts/scan-stations.ts",
+		"data:aliases": "node --experimental-strip-types scripts/build-aliases.ts"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.8",
+		"@cloudflare/vite-plugin": "^1.16.4",
+		"@tailwindcss/vite": "^4.3.3",
+		"@types/node": "^26.2.0",
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.4",
+		"@vitejs/plugin-react": "^6.0.5",
+		"tailwindcss": "^4.3.3",
+		"typescript": "^7.0.2",
+		"vite": "^8.2.1",
+		"vitest": "^4.1.10",
+		"wrangler": "^4.45.0"
+	},
+	"dependencies": {
+		"@tanstack/react-query": "^5.101.4",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"hono": "^4.13.1",
+		"react": "^19.2.8",
+		"react-dom": "^19.2.8",
+		"tailwind-merge": "^3.6.0",
+		"zod": "^4.4.3"
+	}
+}

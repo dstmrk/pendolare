@@ -1,0 +1,33 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { App } from "./App.tsx";
+import "./styles/theme.css";
+
+/**
+ * The start of the client.
+ *
+ * The application holds one page and it needs no router: the person selects
+ * two stations and reads the board.
+ */
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			retry: 1,
+			refetchOnWindowFocus: true,
+		},
+	},
+});
+
+const root = document.getElementById("root");
+if (root === null) {
+	throw new Error("The page holds no element root.");
+}
+
+createRoot(root).render(
+	<StrictMode>
+		<QueryClientProvider client={queryClient}>
+			<App />
+		</QueryClientProvider>
+	</StrictMode>,
+);

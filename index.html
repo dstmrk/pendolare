@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="it">
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, viewport-fit=cover"
+		/>
+		<meta name="theme-color" content="#0b0c0e" />
+		<meta name="color-scheme" content="dark" />
+
+		<!-- This head holds the only Italian text outside src/client/text.ts. A
+		     static file imports no module, and a crawler of an assistant reads
+		     no JavaScript. Therefore the title and the description must be
+		     here. -->
+		<meta
+			name="description"
+			content="Pendolare mostra i prossimi treni che dalla tua stazione di partenza fermano alla tua stazione di arrivo, con orario, ritardo, binario e orario di arrivo previsto. Dati del monitor arrivi e partenze di RFI."
+		/>
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Pendolare" />
+		<meta property="og:locale" content="it_IT" />
+		<meta property="og:title" content="Pendolare — I prossimi treni da una stazione all'altra" />
+		<meta
+			property="og:description"
+			content="Pendolare mostra i prossimi treni che dalla tua stazione di partenza fermano alla tua stazione di arrivo, con orario, ritardo, binario e orario di arrivo previsto."
+		/>
+		<meta name="twitter:card" content="summary" />
+
+		<title>Pendolare — I prossimi treni da una stazione all'altra</title>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="/src/client/main.tsx"></script>
+	</body>
+</html>
