@@ -16,6 +16,7 @@ export const text = {
 	noStation: "Nessuna stazione con questo nome",
 
 	caption: (from: string, to: string) => `Prossimi treni da ${from} a ${to}`,
+	captionEmpty: "Tabellone in attesa delle due stazioni",
 
 	columnTrain: "Treno",
 	columnDestination: "Destinazione",
@@ -27,7 +28,7 @@ export const text = {
 	    column wider than its five flaps. */
 	columnArrivalShort: "Arrivo",
 
-	loading: "Lettura del tabellone…",
+	loading: "Lettura del tabellone di RFI…",
 	empty:
 		"Nessuno dei prossimi treni in partenza ferma alla stazione di arrivo.",
 	failed: "Il monitor di RFI non risponde. Riprova fra poco.",

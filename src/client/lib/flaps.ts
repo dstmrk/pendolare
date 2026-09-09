@@ -22,6 +22,28 @@ export type FlapCell = {
 };
 
 /**
+ * The time of one turn of the drum, in milliseconds.
+ *
+ * A board of Solari turns its flaps at the speed of its motor, and the reader
+ * hears each card. A turn of 60 milliseconds gives 16 cards each second: the
+ * eye reads one movement and no card. This value gives six cards each second.
+ *
+ * This constant is the source of that time. `SplitFlapText` writes it in the
+ * variable `--board-turn`, and `styles/theme.css` reads that variable. The
+ * sound of the flaps reads the same constant, thus the sound and the movement
+ * stay together.
+ */
+export const TURN_MS = 160;
+
+/**
+ * The time between the first turn of one flap and of the flap after it.
+ *
+ * A board turns from the left, thus each position waits for the position
+ * before it. `SplitFlapText` writes this value in the variable `--board-step`.
+ */
+export const STEP_MS = 70;
+
+/**
  * The characters of the drum, in the order of the turn.
  *
  * The empty position is the first one, thus a board with no data shows no

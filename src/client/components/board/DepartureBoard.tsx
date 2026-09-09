@@ -1,10 +1,12 @@
-import type { JourneyView } from "../../../shared/api.ts";
+import { type JourneyView, TRAINS } from "../../../shared/api.ts";
 import {
 	arrivalField,
+	blankField,
 	clockField,
 	column,
 	delayField,
 	type Field,
+	MINIMUM,
 	platformField,
 	trainField,
 } from "../../lib/board.ts";
@@ -30,7 +32,12 @@ const WIDE_ONLY = "hidden md:table-cell";
  *
  * Each column takes the quantity of flaps of its longest value, thus the columns
  * of two rows stay one under the other and no row holds an empty flap that no
- * value needs.
+ * value needs. `MINIMUM` gives the quantity of a column with no value.
+ *
+ * The board holds its rows before the first answer, with no character on its
+ * flaps. A person then reads an empty board of a station, and the flaps turn
+ * when the answer arrives. Paragraph 5.3 of `docs/architecture.md` gives the
+ * rules.
  */
 export function DepartureBoard({
 	journeys,
@@ -38,33 +45,54 @@ export function DepartureBoard({
 	to,
 }: {
 	journeys: readonly JourneyView[];
-	from: string;
-	to: string;
+	/** The two stations of the answer. A board with no answer holds neither. */
+	from?: string;
+	to?: string;
 }) {
 	const short = useShortNames();
+	const empty = journeys.length === 0;
+	const rows = empty ? Array.from({ length: TRAINS }, () => null) : journeys;
+
+	/** Gives the value of each row, or an empty value for a board with no answer. */
+	function values(of: (journey: JourneyView) => Field): Field[] {
+		return rows.map((one) => (one === null ? blankField() : of(one)));
+	}
+
 	const columns = {
-		train: column(journeys.map(trainField)),
+		train: column(values(trainField), MINIMUM.train),
 		destination: column(
-			journeys.map((one) => ({
+			values((one) => ({
 				text: short ? one.destinationShort : one.destination,
-				tone: "text" as const,
+				tone: "text",
 				// The screen reader always reads the official name.
 				label: one.destination,
 			})),
+			MINIMUM.destination,
 		),
-		departure: column(journeys.map((one) => clockField(one.departure))),
+		departure: column(
+			values((one) => clockField(one.departure)),
+			MINIMUM.clock,
+		),
 		platform: column(
-			journeys.map((one) => platformField(one.platform)),
+			values((one) => platformField(one.platform)),
+			MINIMUM.platform,
 			"right",
 		),
-		delay: column(journeys.map((one) => delayField(one.delay))),
-		arrival: column(journeys.map(arrivalField)),
+		delay: column(
+			values((one) => delayField(one.delay)),
+			MINIMUM.delay,
+		),
+		arrival: column(values(arrivalField), MINIMUM.arrival),
 	};
 
 	return (
 		<div className="overflow-x-auto rounded-lg border border-board-line bg-board-panel">
 			<table className="w-full border-collapse">
-				<caption className="sr-only">{text.caption(from, to)}</caption>
+				<caption className="sr-only">
+					{from === undefined || to === undefined
+						? text.captionEmpty
+						: text.caption(from, to)}
+				</caption>
 				<thead>
 					<tr className="border-board-line border-b">
 						<Head className={WIDE_ONLY}>{text.columnTrain}</Head>
@@ -76,9 +104,13 @@ export function DepartureBoard({
 					</tr>
 				</thead>
 				<tbody>
-					{journeys.map((journey, row) => (
+					{rows.map((journey, row) => (
 						<tr
-							key={`${journey.train}-${journey.departure}`}
+							key={
+								journey === null
+									? `empty-${row}`
+									: `${journey.train}-${journey.departure}`
+							}
 							className="border-board-line/60 border-b last:border-b-0"
 						>
 							<Cell className={WIDE_ONLY} field={columns.train[row]} />

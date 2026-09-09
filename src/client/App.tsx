@@ -73,11 +73,20 @@ export function App() {
 				</Button>
 			</div>
 
+			{/* The board is always on the page. Before the first answer it shows
+			    its rows with no character, as an empty board of a station, and
+			    its flaps turn when the answer arrives. */}
 			<main className="flex flex-col gap-3">
+				<DepartureBoard
+					journeys={board.data?.journeys ?? []}
+					from={board.data?.from.name}
+					to={board.data?.to.name}
+				/>
+
 				{from !== null && to !== null && from.id === to.id && (
 					<Message>{text.same}</Message>
 				)}
-				{ready && board.isPending && <Message>{text.loading}</Message>}
+				{ready && board.isPending && <Note>{text.loading}</Note>}
 				{board.isError && <Message tone="alert">{text.failed}</Message>}
 				{board.data !== undefined && board.data.journeys.length === 0 && (
 					<>
@@ -87,11 +96,6 @@ export function App() {
 				)}
 				{board.data !== undefined && board.data.journeys.length > 0 && (
 					<>
-						<DepartureBoard
-							journeys={board.data.journeys}
-							from={board.data.from.name}
-							to={board.data.to.name}
-						/>
 						<Note>{text.estimate}</Note>
 						{board.data.journeys.length < TRAINS && (
 							<Note>

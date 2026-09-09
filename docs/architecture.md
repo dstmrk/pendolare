@@ -289,6 +289,14 @@ The drum holds the empty position, the letters, the digits and the punctuation:
 the board shows an hour. It holds the point, the apostrophe, the solidus and the
 hyphen, because the names of the stations hold them.
 
+`TURN_MS` and `STEP_MS` of `src/client/lib/flaps.ts` give the two times of the
+movement: one turn of the drum holds 160 milliseconds, and each flap waits 70
+milliseconds for the flap before it. A turn of 60 milliseconds gives 16 cards
+each second, and the eye then reads one movement and no card. `SplitFlapText`
+writes those two values in `--board-turn` and `--board-step`, and
+`styles/theme.css` reads them: the two files hold one source, and the sound of
+the flaps reads the same constants.
+
 Each flap starts eight characters before its character, and not at the empty
 position. A drum of 42 characters gives 41 turns, and each turn holds four
 elements: one board of five trains then holds more than 20000 elements, and the
@@ -313,6 +321,12 @@ files in the repository. Do not use an external CDN.
 
 ### 5.3 The table
 
+The board is always on the page. Before the first answer it shows five rows with
+no character on their flaps, as an empty board of a station, and those flaps turn
+when the answer arrives. `MINIMUM` of `src/client/lib/board.ts` gives the
+quantity of flaps of each column of that board, thus the columns hold their place
+before the answer.
+
 Each column takes the quantity of flaps of its longest value, and `column` of
 `src/client/lib/board.ts` gives that quantity to each row. The columns of two
 rows then stay one under the other, and no row holds an empty flap that no value
@@ -327,8 +341,12 @@ hold a long tail. An examination of 8522 rows gives these numbers:
 | Ritardo | 87.8% hold no character | `CANC` and `+120`, of four characters |
 
 A constant of five flaps thus gives three empty flaps to each platform, and it
-breaks the column of the platform `2 F.E.R.`. A column with no value keeps two
-flaps: a board of a station shows the housings of a field with no value.
+breaks the column of the platform `2 F.E.R.`.
+
+The delay holds three flaps at the minimum and not four. The value `CANC` and a
+delay of more than 99 minutes hold four characters, and that column then takes
+one flap more: those two values are 1.5 per cent of the rows, and four flaps for
+each row make the table wider than a telephone.
 
 The column of the platform holds the space before its value. The platform is a
 number, and a number reads better at the right side of its column.

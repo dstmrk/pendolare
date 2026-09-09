@@ -30,12 +30,26 @@ export type Field = {
 };
 
 /**
- * The smallest quantity of flaps of a column.
+ * The smallest quantity of flaps of each column.
  *
- * A column with no value still shows its housings. A board of a station holds
- * the flaps of the delay also for a train with no delay.
+ * A column with no value still shows its housings: the page shows the board
+ * before the first answer, and that board holds the flaps of each column. The
+ * values come from the answers of RFI: a train holds four or five digits, a
+ * short name of a station holds twelve characters, and an hour holds five.
+ *
+ * The delay holds three flaps and not four. The value `CANC` and a delay of
+ * more than 99 minutes hold four characters, and that column then takes one
+ * flap more: those two values are 1.5 per cent of the rows, and four flaps for
+ * each row make the table wider than a telephone.
  */
-const MINIMUM = 2;
+export const MINIMUM = {
+	train: 5,
+	destination: 12,
+	clock: 5,
+	platform: 2,
+	delay: 3,
+	arrival: 5,
+} as const;
 
 /** The characters of an hour that the application does not hold. */
 const NO_CLOCK = "--:--";
@@ -46,8 +60,11 @@ export function pad(value: string, width: number): string {
 }
 
 /** Gives the quantity of flaps of a column. */
-export function columnWidth(values: readonly string[]): number {
-	return values.reduce((most, one) => Math.max(most, one.length), MINIMUM);
+export function columnWidth(
+	values: readonly string[],
+	minimum: number,
+): number {
+	return values.reduce((most, one) => Math.max(most, one.length), minimum);
 }
 
 /**
@@ -58,14 +75,23 @@ export function columnWidth(values: readonly string[]): number {
  */
 export function column(
 	fields: readonly Field[],
+	minimum: number,
 	align: "left" | "right" = "left",
 ): Field[] {
-	const width = columnWidth(fields.map((one) => one.text));
+	const width = columnWidth(
+		fields.map((one) => one.text),
+		minimum,
+	);
 	return fields.map((one) => ({
 		...one,
 		text:
 			align === "right" ? one.text.padStart(width, " ") : pad(one.text, width),
 	}));
+}
+
+/** A value of a board with no answer. Its flaps show no character. */
+export function blankField(): Field {
+	return { text: "", tone: "text", label: "" };
 }
 
 /** The number of the train. */
