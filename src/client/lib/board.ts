@@ -37,17 +37,17 @@ export type Field = {
  * values come from the answers of RFI: a train holds four or five digits, a
  * short name of a station holds twelve characters, and an hour holds five.
  *
- * The delay holds three flaps and not four. The value `CANC` and a delay of
- * more than 99 minutes hold four characters, and that column then takes one
- * flap more: those two values are 1.5 per cent of the rows, and four flaps for
- * each row make the table wider than a telephone.
+ * The platform and the delay hold four flaps and no more. RFI writes
+ * `2 F.E.R.` at the station of Ferrara, and a delay can hold more than 99
+ * minutes: those long values do not widen the table, and `column` cuts them
+ * to four characters.
  */
 export const MINIMUM = {
 	train: 5,
 	destination: 12,
 	clock: 5,
-	platform: 2,
-	delay: 3,
+	platform: 4,
+	delay: 4,
 	arrival: 5,
 } as const;
 
@@ -72,26 +72,49 @@ export function columnWidth(
  *
  * A column of the right side holds the space before the value: the platform is
  * a number, and a number reads better at the right side of its column.
+ *
+ * A fixed column keeps the quantity of `minimum`: it does not grow with a long
+ * value, and it cuts that value to the quantity of flaps. The screen reader
+ * still reads the full value, because the cut applies to `text` and not to
+ * `label`.
  */
 export function column(
 	fields: readonly Field[],
 	minimum: number,
 	align: "left" | "right" = "left",
+	fixed = false,
 ): Field[] {
-	const width = columnWidth(
-		fields.map((one) => one.text),
-		minimum,
-	);
-	return fields.map((one) => ({
-		...one,
-		text:
-			align === "right" ? one.text.padStart(width, " ") : pad(one.text, width),
-	}));
+	const width = fixed
+		? minimum
+		: columnWidth(
+				fields.map((one) => one.text),
+				minimum,
+			);
+	return fields.map((one) => {
+		const text = one.text.length > width ? one.text.slice(0, width) : one.text;
+		return {
+			...one,
+			text: align === "right" ? text.padStart(width, " ") : pad(text, width),
+		};
+	});
 }
 
 /** A value of a board with no answer. Its flaps show no character. */
 export function blankField(): Field {
 	return { text: "", tone: "text", label: "" };
+}
+
+/**
+ * Gives the board a fixed quantity of rows.
+ *
+ * The board always shows `length` rows. An answer with fewer trains leaves
+ * the rows below empty, and an answer with more trains does not happen: the
+ * worker limits the quantity of journeys to `length`.
+ */
+export function padRows<T>(items: readonly T[], length: number): (T | null)[] {
+	const rows: (T | null)[] = items.slice(0, length);
+	while (rows.length < length) rows.push(null);
+	return rows;
 }
 
 /** The number of the train. */
@@ -116,9 +139,10 @@ export function delayField(delay: Delay): Field {
 		case "onTime":
 			return { text: "", tone: "text", label: "in orario" };
 		case "minutes": {
-			const sign = delay.minutes > 0 ? "+" : "";
+			const sign = delay.minutes > 0 ? "+" : "-";
+			const digits = Math.abs(delay.minutes).toString();
 			return {
-				text: `${sign}${delay.minutes}`,
+				text: `${sign}${digits.padStart(MINIMUM.delay - 1, " ")}`,
 				tone: "amber",
 				label:
 					delay.minutes > 0
