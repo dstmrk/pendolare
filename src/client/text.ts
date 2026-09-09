@@ -10,8 +10,8 @@ export const text = {
 
 	from: "Stazione di partenza",
 	to: "Stazione di arrivo",
-	fromPlaceholder: "Parti da (città o stazione)",
-	toPlaceholder: "Arriva a (città o stazione)",
+	fromPlaceholder: "Parti da",
+	toPlaceholder: "Vai a",
 	swap: "Inverti le due stazioni",
 	refresh: "Aggiorna il tabellone",
 	soundOn: "Attiva il suono dei flap",
