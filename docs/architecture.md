@@ -415,7 +415,21 @@ holds no rounded corner.
 repository, thus the directory of the static files needs its path: without it
 Vite reads `./public`, and the three files never arrive in `dist/client`.
 
-### 5.6 The sound of the flaps
+### 5.6 The address of the two stations
+
+A person can bookmark a journey with `?from=<id>&to=<id>` in the address of
+the page, with the `placeId` of RFI of the two stations. `src/client/lib/url.ts`
+reads the two identifiers at the load of the page, and `App.tsx` gives each
+field a station with no name: the answer of `/api/journeys` holds the name of
+the two stations, and the field then shows it. The application asks no new
+address of the API for the name, because that answer already holds it.
+
+The address of the page changes again when the person selects a station or
+uses the button of the swap, with `history.replaceState`. Thus the address
+always matches the two stations of the fields, and a person can bookmark the
+new journey.
+
+### 5.7 The sound of the flaps
 
 A board of Solari knocks each time a card falls. The application makes that
 knock with the Web Audio API: it holds no file of sound, thus it needs no
