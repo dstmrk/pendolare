@@ -38,6 +38,15 @@ const MONITOR =
  */
 const CACHE_SECONDS = 45;
 
+/**
+ * The maximum time of the call to RFI.
+ *
+ * RFI answers in two seconds. A page that does not arrive gives an error, and
+ * the person then reads a message and asks again. Without that limit the
+ * person waits for the limit of the platform.
+ */
+const TIMEOUT_MS = 10_000;
+
 /** The quantity of stations of the field of search. */
 const SUGGESTIONS = 8;
 
@@ -85,6 +94,7 @@ async function fetchBoard(
 			"User-Agent": "pendolare (+https://github.com/dstmrk/pendolare)",
 			"Accept-Language": "it",
 		},
+		signal: AbortSignal.timeout(TIMEOUT_MS),
 	});
 	if (!answer.ok) {
 		throw new Error(`RFI ${answer.status}`);
