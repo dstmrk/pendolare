@@ -134,8 +134,8 @@ export function DepartureBoard({
 						<Head className={WIDE_ONLY}>{text.columnTrain}</Head>
 						<Head>{text.columnDestination}</Head>
 						<Head>{text.columnTime}</Head>
-						<Head>{text.columnPlatform}</Head>
-						<Head>{text.columnDelay}</Head>
+						<Head align="right">{text.columnPlatform}</Head>
+						<Head align="right">{text.columnDelay}</Head>
 						<Head short={text.columnArrivalShort}>{text.columnArrival}</Head>
 					</tr>
 				</thead>
@@ -169,20 +169,26 @@ export function DepartureBoard({
  * A head that is longer than its column makes that column wider: `ARRIVO
  * PREVISTO` is 15 characters and its value holds five flaps. `short` gives a
  * second head for a screen below the breakpoint `xl`.
+ *
+ * `align` gives the head the same side as the flaps of its column: the
+ * platform and the delay hold their value at the right side, thus their head
+ * also holds the right side.
  */
 function Head({
 	children,
 	short,
+	align = "left",
 	className,
 }: {
 	children: string;
 	short?: string;
+	align?: "left" | "right";
 	className?: string;
 }) {
 	return (
 		<th
 			scope="col"
-			className={`whitespace-nowrap px-0.5 py-2 text-left font-board text-[11px] text-board-muted uppercase tracking-widest md:px-2 ${className ?? ""}`}
+			className={`whitespace-nowrap px-0.5 py-2 font-board text-[11px] text-board-muted uppercase tracking-widest md:px-2 ${align === "right" ? "text-right" : "text-left"} ${className ?? ""}`}
 		>
 			{short === undefined ? (
 				children

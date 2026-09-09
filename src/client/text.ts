@@ -24,8 +24,8 @@ export const text = {
 	columnTrain: "Treno",
 	columnDestination: "Destinazione",
 	columnTime: "Orario",
-	columnDelay: "Ritardo",
-	columnPlatform: "Binario",
+	columnDelay: "Rit",
+	columnPlatform: "Bin",
 	columnArrival: "Arrivo previsto",
 	/** The head of the same column on a telephone. The long head makes that
 	    column wider than its five flaps. */
