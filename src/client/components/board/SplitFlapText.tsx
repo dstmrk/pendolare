@@ -83,8 +83,11 @@ export function SplitFlapText({
 				className="inline-flex items-stretch gap-px md:gap-[2px]"
 			>
 				{toFlapCells(text).map((cell) => (
+					// The key holds the character. A flap whose character changes is
+					// then a new element, and its cards fall again: on a board of
+					// Solari a flap turns when its value changes.
 					<SplitFlapCell
-						key={cell.position}
+						key={`${cell.position}-${cell.char}`}
 						char={cell.char}
 						index={cell.position}
 						moves={moves}

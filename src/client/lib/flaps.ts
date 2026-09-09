@@ -13,8 +13,9 @@
  * One flap of the board.
  *
  * A board has one flap for each character. `position` is the place of the flap
- * on the board, and it is the identity of that flap: the flap in the third
- * place stays the same flap when the value changes. React uses it as the key.
+ * on the board, and it gives the moment of its turn: the board turns from the
+ * left. React reads the place and the character together as the key, thus a
+ * flap whose character changes turns again.
  */
 export type FlapCell = {
 	readonly position: number;
@@ -107,6 +108,18 @@ export function toFlapCells(text: string): FlapCell[] {
 }
 
 /**
+ * Gives the quantity of turns of one flap, until a character of the drum.
+ *
+ * The sound of the flaps reads this quantity: one card that falls gives one
+ * knock. A flap at the empty position, and a flap with a character that the
+ * drum does not hold, turn no time.
+ */
+export function foldCount(char: string): number {
+	const end = DRUM.indexOf(char.toUpperCase());
+	return end <= 0 ? 0 : end - Math.max(0, end - MAX_TURNS);
+}
+
+/**
  * Gives the turns of one flap, until a character of the drum.
  *
  * These two flaps receive no fold, and their two halves hold the character:
@@ -117,11 +130,11 @@ export function toFlapCells(text: string): FlapCell[] {
  */
 export function toFlapTurn(char: string, moves: boolean): FlapTurn {
 	const end = DRUM.indexOf(char.toUpperCase());
-	if (!moves || end <= 0) {
+	if (!moves || foldCount(char) === 0) {
 		return { top: char, bottom: char, folds: [] };
 	}
 
-	const start = Math.max(0, end - MAX_TURNS);
+	const start = end - foldCount(char);
 	let previous = DRUM[start] as string;
 	const folds = [...DRUM].slice(start + 1, end + 1).map((to, step) => {
 		const fold = { step, from: previous, to };

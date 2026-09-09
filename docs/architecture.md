@@ -415,6 +415,37 @@ holds no rounded corner.
 repository, thus the directory of the static files needs its path: without it
 Vite reads `./public`, and the three files never arrive in `dist/client`.
 
+### 5.6 The sound of the flaps
+
+A board of Solari knocks each time a card falls. The application makes that
+knock with the Web Audio API: it holds no file of sound, thus it needs no
+licence and no download. `lib/sound.ts` makes a noise of 45 milliseconds that
+goes away quickly, through a filter of band at 1800 hertz.
+
+The board holds 1015 cards for one answer. One source of audio for each card is
+too much for a telephone, thus `clackTimes` of `src/client/lib/clack.ts` gives
+one moment and not one card. Each surface of flaps starts its places at zero,
+thus the moments of two surfaces are the same: one answer gives 93 moments for
+1015 cards, and the quantity of cards of a moment gives the volume.
+
+`turningFlaps` gives the flaps that change their character. A flap turns when
+its value changes, because `SplitFlapText` reads the place and the character
+together as the key of React. A refresh that changes one delay thus turns the
+flaps of that column and of the hour of arrival, and it knocks for those flaps
+only.
+
+The sound starts on, and the button of the masthead stops it. The choice stays
+in the store of the browser, with the key `pendolare:suono`.
+
+Two rules stop the sound:
+
+- A browser plays no sound before an action of the person. `armSound` makes the
+  AudioContext at the first action on the page. The person writes the name of a
+  station first, thus the board knocks at the first answer and never at the
+  load.
+- A person who asks for `prefers-reduced-motion` sees no movement of the flaps.
+  That person hears no knock: a knock with no card that falls says nothing.
+
 ## 6. The configuration of TypeScript
 
 The project holds one configuration for each environment:

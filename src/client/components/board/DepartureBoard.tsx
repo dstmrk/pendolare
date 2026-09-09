@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from "react";
 import { type JourneyView, TRAINS } from "../../../shared/api.ts";
 import {
 	arrivalField,
@@ -10,7 +11,9 @@ import {
 	platformField,
 	trainField,
 } from "../../lib/board.ts";
+import { clackTimes, turningFlaps } from "../../lib/clack.ts";
 import { useShortNames } from "../../lib/media.ts";
+import { playClacks } from "../../lib/sound.ts";
 import { text } from "../../text.ts";
 import { SplitFlapText } from "./SplitFlapText.tsx";
 
@@ -50,40 +53,72 @@ export function DepartureBoard({
 	to?: string;
 }) {
 	const short = useShortNames();
-	const empty = journeys.length === 0;
-	const rows = empty ? Array.from({ length: TRAINS }, () => null) : journeys;
 
-	/** Gives the value of each row, or an empty value for a board with no answer. */
-	function values(of: (journey: JourneyView) => Field): Field[] {
-		return rows.map((one) => (one === null ? blankField() : of(one)));
-	}
+	// TanStack Query keeps the identity of `journeys` when the answer does not
+	// change, thus these two values change only with the data of RFI or with
+	// the width of the screen. The effect of the sound then reads one list of
+	// dependencies that is complete.
+	const columns = useMemo(() => {
+		const rows: (JourneyView | null)[] =
+			journeys.length === 0
+				? Array.from({ length: TRAINS }, () => null)
+				: [...journeys];
 
-	const columns = {
-		train: column(values(trainField), MINIMUM.train),
-		destination: column(
-			values((one) => ({
-				text: short ? one.destinationShort : one.destination,
-				tone: "text",
-				// The screen reader always reads the official name.
-				label: one.destination,
-			})),
-			MINIMUM.destination,
-		),
-		departure: column(
-			values((one) => clockField(one.departure)),
-			MINIMUM.clock,
-		),
-		platform: column(
-			values((one) => platformField(one.platform)),
-			MINIMUM.platform,
-			"right",
-		),
-		delay: column(
-			values((one) => delayField(one.delay)),
-			MINIMUM.delay,
-		),
-		arrival: column(values(arrivalField), MINIMUM.arrival),
-	};
+		/** Gives the value of each row, or an empty value for a board with no answer. */
+		const values = (of: (journey: JourneyView) => Field): Field[] =>
+			rows.map((one) => (one === null ? blankField() : of(one)));
+
+		return {
+			rows,
+			train: column(values(trainField), MINIMUM.train),
+			destination: column(
+				values((one) => ({
+					text: short ? one.destinationShort : one.destination,
+					tone: "text",
+					// The screen reader always reads the official name.
+					label: one.destination,
+				})),
+				MINIMUM.destination,
+			),
+			departure: column(
+				values((one) => clockField(one.departure)),
+				MINIMUM.clock,
+			),
+			platform: column(
+				values((one) => platformField(one.platform)),
+				MINIMUM.platform,
+				"right",
+			),
+			delay: column(
+				values((one) => delayField(one.delay)),
+				MINIMUM.delay,
+			),
+			arrival: column(values(arrivalField), MINIMUM.arrival),
+		};
+	}, [journeys, short]);
+
+	const { rows } = columns;
+
+	// The flaps that change their character turn again, thus the board knocks
+	// for those flaps only. A refresh that changes one delay gives the knock of
+	// that column and of the hour of arrival.
+	const texts = useMemo(
+		() =>
+			[
+				columns.train,
+				columns.destination,
+				columns.departure,
+				columns.platform,
+				columns.delay,
+				columns.arrival,
+			].flatMap((one) => one.map((field) => field.text)),
+		[columns],
+	);
+	const before = useRef<string[]>([]);
+	useEffect(() => {
+		playClacks(clackTimes(turningFlaps(before.current, texts)));
+		before.current = texts;
+	}, [texts]);
 
 	return (
 		<div className="overflow-x-auto rounded-lg border border-board-line bg-board-panel">
