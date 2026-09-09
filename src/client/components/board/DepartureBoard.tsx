@@ -152,8 +152,8 @@ export function DepartureBoard({
 							<Cell className={WIDE_ONLY} field={columns.train[row]} />
 							<Cell field={columns.destination[row]} />
 							<Cell field={columns.departure[row]} />
-							<Cell field={columns.platform[row]} />
-							<Cell field={columns.delay[row]} />
+							<Cell className="text-right" field={columns.platform[row]} />
+							<Cell className="text-right" field={columns.delay[row]} />
 							<Cell field={columns.arrival[row]} />
 						</tr>
 					))}
