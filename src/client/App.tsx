@@ -8,6 +8,7 @@ import { StationField } from "./components/StationField.tsx";
 import { Button } from "./components/ui/button.tsx";
 import { fetchJourneys } from "./lib/api.ts";
 import { armSound } from "./lib/sound.ts";
+import { presetStation, readStationIds, stationSearch } from "./lib/url.ts";
 import { text } from "./text.ts";
 
 /** The time between two readings of the monitor of RFI. */
@@ -28,8 +29,15 @@ export function App() {
 	// on this page makes the sound ready, thus the first answer knocks.
 	useEffect(armSound, []);
 
-	const [from, setFrom] = useState<StationSummary | null>(null);
-	const [to, setTo] = useState<StationSummary | null>(null);
+	// The address of the page can hold the identifier of the two stations, for
+	// a journey that the person makes each day. The field shows no name before
+	// the answer of the board: the application knows the identifier only.
+	const [from, setFrom] = useState<StationSummary | null>(() =>
+		presetStation(readStationIds(window.location.search).from),
+	);
+	const [to, setTo] = useState<StationSummary | null>(() =>
+		presetStation(readStationIds(window.location.search).to),
+	);
 
 	const ready = from !== null && to !== null && from.id !== to.id;
 	const board = useQuery({
@@ -38,6 +46,27 @@ export function App() {
 		enabled: ready,
 		refetchInterval: REFRESH,
 	});
+
+	// The answer of the board gives the name of the two stations. The field of
+	// a station that the address of the page gave with no name then shows it.
+	useEffect(() => {
+		if (board.data === undefined) {
+			return;
+		}
+		if (from !== null && from.id === board.data.from.id && from.name === "") {
+			setFrom(board.data.from);
+		}
+		if (to !== null && to.id === board.data.to.id && to.name === "") {
+			setTo(board.data.to);
+		}
+	}, [board.data, from, to]);
+
+	// The address of the page keeps the identifier of the two stations, thus a
+	// person can bookmark the journey and open the link again.
+	useEffect(() => {
+		const url = `${window.location.pathname}${stationSearch(from?.id ?? null, to?.id ?? null)}`;
+		window.history.replaceState(null, "", url);
+	}, [from?.id, to?.id]);
 
 	return (
 		<div className="mx-auto flex min-h-dvh max-w-6xl flex-col gap-6 px-3 pt-safe pb-safe sm:px-4">

@@ -136,7 +136,7 @@ must do no I/O. Write a unit test for each new rule.
   That user also hears no knock of the flaps: a knock with no card that falls
   says nothing.
 - The board knocks one time for each moment and not one time for each card. One
-  answer gives 1015 cards and 93 moments. Paragraph 5.6 of
+  answer gives 1015 cards and 93 moments. Paragraph 5.7 of
   `docs/architecture.md` gives the rules of the sound.
 - The board is always on the page. Before the first answer it shows its rows with
   no character, and those flaps turn when the answer arrives.
