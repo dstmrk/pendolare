@@ -275,14 +275,13 @@ surface that turns one time is not a Solari.
 
 **The line of the axis takes no space of the character.** The two halves hold
 one half of the height each, and the line comes from `::after` of the housing,
-above the card. A half that stops before the middle removes a band of the
-character: at a text of 11 pixels the capital letters are 7 pixels high, and a
-band of 2 pixels removes the bar of the `A`, of the `E`, of the `B` and of the
-`8`. An examination of the same letters with four values of that band gives the
-rule: a band of 2 pixels makes the `A` a `Λ`, a band of 1 pixel keeps a part of
-the defect, and a line above the character keeps each letter. On a real board
-the two halves of the card touch, and the reader sees a shadow: the card loses
-no ink.
+above the card. A half that stops before the middle removes a part of the
+character: it removes the bar of the `A`, of the `E`, of the `B` and of the
+`8`. JetBrains Mono is a smooth font, and its capital letters sit at the same
+distance from the ascent and from the descent. The CSS gives the same space
+above and below the character at each size of the font, thus the line of the
+axis stays at the middle of the capital letters. On a real board the two
+halves of the card touch, and the reader sees a shadow: the card loses no ink.
 
 The drum holds the empty position, the letters, the digits and the punctuation:
 `" ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:'/-"`. It holds the two points, because
@@ -303,10 +302,10 @@ elements: one board of five trains then holds more than 20000 elements, and the
 telephone stops. The eye reads no separate character of a fast turn: it reads
 the movement.
 
-Give a size of a multiple of 11 pixels to each text of the board: `text-[11px]`,
-`text-[22px]`. Departure Mono is a pixel font. Write the size as an arbitrary
-value with a length. A token `text-flap-sm` has the shape of a colour, thus
-`tailwind-merge` removes it and keeps `text-board-amber`.
+Give the text of the board a size of `text-[11px]` or `text-[22px]`, and write
+the size as an arbitrary value with a length, not as a token of the theme. A
+token `text-flap-sm` has the shape of a colour, thus `tailwind-merge` removes
+it and keeps `text-board-amber`.
 
 Give `aria-hidden` to the flaps. Put the correct value in an element that is not
 visible: a reader of five separate cells says "one, four, two points, five,
@@ -316,8 +315,9 @@ If the user selects `prefers-reduced-motion`, the flaps show the new value
 immediately. The state with no animation is the state at the end of the turn,
 thus the animation needs no second rule for that user.
 
-The font of the board is Departure Mono, in `src/client/fonts/`. Keep the font
-files in the repository. Do not use an external CDN.
+The font of the board is JetBrains Mono, in `src/client/fonts/`. The board
+shows the bold weight only, thus the repository holds that weight only. Keep
+the font files in the repository. Do not use an external CDN.
 
 ### 5.3 The table
 
