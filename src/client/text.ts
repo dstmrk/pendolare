@@ -13,9 +13,12 @@ export const text = {
 	fromPlaceholder: "Cerca la stazione di partenza",
 	toPlaceholder: "Cerca la stazione di arrivo",
 	swap: "Inverti le due stazioni",
+	soundOn: "Attiva il suono dei flap",
+	soundOff: "Disattiva il suono dei flap",
 	noStation: "Nessuna stazione con questo nome",
 
 	caption: (from: string, to: string) => `Prossimi treni da ${from} a ${to}`,
+	captionEmpty: "Tabellone in attesa delle due stazioni",
 
 	columnTrain: "Treno",
 	columnDestination: "Destinazione",
@@ -27,7 +30,7 @@ export const text = {
 	    column wider than its five flaps. */
 	columnArrivalShort: "Arrivo",
 
-	loading: "Lettura del tabellone…",
+	loading: "Lettura del tabellone di RFI…",
 	empty:
 		"Nessuno dei prossimi treni in partenza ferma alla stazione di arrivo.",
 	failed: "Il monitor di RFI non risponde. Riprova fra poco.",

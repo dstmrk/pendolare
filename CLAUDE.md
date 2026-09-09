@@ -133,6 +133,17 @@ must do no I/O. Write a unit test for each new rule.
 - Measure the width of the table after a change of a column. The head of a
   column that is longer than its value makes that column wider.
 - If the user selects `prefers-reduced-motion`, show the new value immediately.
+  That user also hears no knock of the flaps: a knock with no card that falls
+  says nothing.
+- The board knocks one time for each moment and not one time for each card. One
+  answer gives 1015 cards and 93 moments. Paragraph 5.6 of
+  `docs/architecture.md` gives the rules of the sound.
+- The board is always on the page. Before the first answer it shows its rows with
+  no character, and those flaps turn when the answer arrives.
+- `TURN_MS` and `STEP_MS` of `src/client/lib/flaps.ts` hold the two times of the
+  movement. Do not write a time in `styles/theme.css`: that file reads
+  `--board-turn` and `--board-step`, and the sound of the flaps reads the same
+  constants.
 - Give each column the quantity of flaps of its longest value, with `column` of
   `src/client/lib/board.ts`. The columns of two rows then stay one under the
   other, and no row holds an empty flap that no value needs. A constant of five

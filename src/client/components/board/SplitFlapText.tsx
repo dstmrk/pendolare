@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { toFlapCells } from "../../lib/flaps.ts";
+import type { CSSProperties } from "react";
+import { STEP_MS, TURN_MS, toFlapCells } from "../../lib/flaps.ts";
 import { SplitFlapCell } from "./SplitFlapCell.tsx";
 
 /**
@@ -63,16 +64,30 @@ export function SplitFlapText({
 	tone?: VariantProps<typeof flapCell>["tone"];
 	size?: VariantProps<typeof flapCell>["size"];
 }) {
+	// The two times of the animation come from `lib/flaps.ts`. The file
+	// `styles/theme.css` reads these two variables, thus the movement and the
+	// sound of the flaps hold one source.
+	const timing = {
+		"--board-turn": `${TURN_MS}ms`,
+		"--board-step": `${STEP_MS}ms`,
+	} as CSSProperties;
+
 	return (
-		<span className="inline-flex items-stretch gap-px md:gap-[2px]">
+		<span
+			className="inline-flex items-stretch gap-px md:gap-[2px]"
+			style={timing}
+		>
 			<span className="sr-only">{label ?? text}</span>
 			<span
 				aria-hidden="true"
 				className="inline-flex items-stretch gap-px md:gap-[2px]"
 			>
 				{toFlapCells(text).map((cell) => (
+					// The key holds the character. A flap whose character changes is
+					// then a new element, and its cards fall again: on a board of
+					// Solari a flap turns when its value changes.
 					<SplitFlapCell
-						key={cell.position}
+						key={`${cell.position}-${cell.char}`}
 						char={cell.char}
 						index={cell.position}
 						moves={moves}

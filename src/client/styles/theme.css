@@ -129,12 +129,17 @@
 	perspective: 200px;
 
 	/* One turn of the drum. The top half falls in the first half of that time,
-	   and the bottom half falls in the second half. */
-	--flap-turn: 60ms;
+	   and the bottom half falls in the second half.
+
+	   `SplitFlapText` writes `--board-turn` and `--board-step`, and
+	   `lib/flaps.ts` holds the two values: the sound of the flaps reads the
+	   same constants. The value after the comma is for a flap with no such
+	   wrapper, and it must hold the same number as that file. */
+	--flap-turn: var(--board-turn, 160ms);
 
 	/* The moment of the first turn of this flap. A board turns from the left,
 	   thus each position waits for the position before it. */
-	--flap-start: calc(var(--flap-index, 0) * 26ms);
+	--flap-start: calc(var(--flap-index, 0) * var(--board-step, 70ms));
 
 	&::after {
 		content: "";

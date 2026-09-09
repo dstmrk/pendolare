@@ -56,5 +56,5 @@ MIT. Refer to [`LICENSE`](LICENSE).
 The font of the board is [Departure Mono](https://departuremono.com) of Helena
 Zhang, with the SIL Open Font License 1.1.
 
-The mark is the icon `train-front` of [Lucide](https://lucide.dev), with the ISC
-licence.
+The mark and the two icons of the sound are `train-front`, `volume-2` and
+`volume-off` of [Lucide](https://lucide.dev), with the ISC licence.

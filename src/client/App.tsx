@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type StationSummary, TRAINS } from "../shared/api.ts";
 import { DepartureBoard } from "./components/board/DepartureBoard.tsx";
 import { SplitFlapText } from "./components/board/SplitFlapText.tsx";
+import { SoundToggle } from "./components/SoundToggle.tsx";
 import { StationField } from "./components/StationField.tsx";
 import { Button } from "./components/ui/button.tsx";
 import { fetchJourneys } from "./lib/api.ts";
+import { armSound } from "./lib/sound.ts";
 import { text } from "./text.ts";
 
 /** The time between two readings of the monitor of RFI. */
@@ -22,6 +24,10 @@ const REFRESH = 60 * 1000;
  * data can hold three minutes of delay against the boards of the station.
  */
 export function App() {
+	// A browser plays no sound before an action of the person. The first action
+	// on this page makes the sound ready, thus the first answer knocks.
+	useEffect(armSound, []);
+
 	const [from, setFrom] = useState<StationSummary | null>(null);
 	const [to, setTo] = useState<StationSummary | null>(null);
 
@@ -35,14 +41,17 @@ export function App() {
 
 	return (
 		<div className="mx-auto flex min-h-dvh max-w-6xl flex-col gap-6 px-3 pt-safe pb-safe sm:px-4">
-			<header>
-				<h1 className="flex items-center gap-3">
-					{/* The mark holds the colour of the page, thus the square of
+			<header className="flex items-start justify-between gap-3">
+				<div>
+					<h1 className="flex items-center gap-3">
+						{/* The mark holds the colour of the page, thus the square of
 					    the icon does not show on this surface. */}
-					<img src="/icon.svg" alt="" width="36" height="36" />
-					<SplitFlapText text={text.title} moves={false} size="md" />
-				</h1>
-				<p className="mt-2 text-board-muted text-sm">{text.tagline}</p>
+						<img src="/icon.svg" alt="" width="36" height="36" />
+						<SplitFlapText text={text.title} moves={false} size="md" />
+					</h1>
+					<p className="mt-2 text-board-muted text-sm">{text.tagline}</p>
+				</div>
+				<SoundToggle />
 			</header>
 
 			<section className="grid gap-4 sm:grid-cols-2">
@@ -73,11 +82,20 @@ export function App() {
 				</Button>
 			</div>
 
+			{/* The board is always on the page. Before the first answer it shows
+			    its rows with no character, as an empty board of a station, and
+			    its flaps turn when the answer arrives. */}
 			<main className="flex flex-col gap-3">
+				<DepartureBoard
+					journeys={board.data?.journeys ?? []}
+					from={board.data?.from.name}
+					to={board.data?.to.name}
+				/>
+
 				{from !== null && to !== null && from.id === to.id && (
 					<Message>{text.same}</Message>
 				)}
-				{ready && board.isPending && <Message>{text.loading}</Message>}
+				{ready && board.isPending && <Note>{text.loading}</Note>}
 				{board.isError && <Message tone="alert">{text.failed}</Message>}
 				{board.data !== undefined && board.data.journeys.length === 0 && (
 					<>
@@ -87,11 +105,6 @@ export function App() {
 				)}
 				{board.data !== undefined && board.data.journeys.length > 0 && (
 					<>
-						<DepartureBoard
-							journeys={board.data.journeys}
-							from={board.data.from.name}
-							to={board.data.to.name}
-						/>
 						<Note>{text.estimate}</Note>
 						{board.data.journeys.length < TRAINS && (
 							<Note>

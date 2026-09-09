@@ -1,14 +1,19 @@
-import type { JourneyView } from "../../../shared/api.ts";
+import { useEffect, useMemo, useRef } from "react";
+import { type JourneyView, TRAINS } from "../../../shared/api.ts";
 import {
 	arrivalField,
+	blankField,
 	clockField,
 	column,
 	delayField,
 	type Field,
+	MINIMUM,
 	platformField,
 	trainField,
 } from "../../lib/board.ts";
+import { clackTimes, turningFlaps } from "../../lib/clack.ts";
 import { useShortNames } from "../../lib/media.ts";
+import { playClacks } from "../../lib/sound.ts";
 import { text } from "../../text.ts";
 import { SplitFlapText } from "./SplitFlapText.tsx";
 
@@ -30,7 +35,12 @@ const WIDE_ONLY = "hidden md:table-cell";
  *
  * Each column takes the quantity of flaps of its longest value, thus the columns
  * of two rows stay one under the other and no row holds an empty flap that no
- * value needs.
+ * value needs. `MINIMUM` gives the quantity of a column with no value.
+ *
+ * The board holds its rows before the first answer, with no character on its
+ * flaps. A person then reads an empty board of a station, and the flaps turn
+ * when the answer arrives. Paragraph 5.3 of `docs/architecture.md` gives the
+ * rules.
  */
 export function DepartureBoard({
 	journeys,
@@ -38,33 +48,86 @@ export function DepartureBoard({
 	to,
 }: {
 	journeys: readonly JourneyView[];
-	from: string;
-	to: string;
+	/** The two stations of the answer. A board with no answer holds neither. */
+	from?: string;
+	to?: string;
 }) {
 	const short = useShortNames();
-	const columns = {
-		train: column(journeys.map(trainField)),
-		destination: column(
-			journeys.map((one) => ({
-				text: short ? one.destinationShort : one.destination,
-				tone: "text" as const,
-				// The screen reader always reads the official name.
-				label: one.destination,
-			})),
-		),
-		departure: column(journeys.map((one) => clockField(one.departure))),
-		platform: column(
-			journeys.map((one) => platformField(one.platform)),
-			"right",
-		),
-		delay: column(journeys.map((one) => delayField(one.delay))),
-		arrival: column(journeys.map(arrivalField)),
-	};
+
+	// TanStack Query keeps the identity of `journeys` when the answer does not
+	// change, thus these two values change only with the data of RFI or with
+	// the width of the screen. The effect of the sound then reads one list of
+	// dependencies that is complete.
+	const columns = useMemo(() => {
+		const rows: (JourneyView | null)[] =
+			journeys.length === 0
+				? Array.from({ length: TRAINS }, () => null)
+				: [...journeys];
+
+		/** Gives the value of each row, or an empty value for a board with no answer. */
+		const values = (of: (journey: JourneyView) => Field): Field[] =>
+			rows.map((one) => (one === null ? blankField() : of(one)));
+
+		return {
+			rows,
+			train: column(values(trainField), MINIMUM.train),
+			destination: column(
+				values((one) => ({
+					text: short ? one.destinationShort : one.destination,
+					tone: "text",
+					// The screen reader always reads the official name.
+					label: one.destination,
+				})),
+				MINIMUM.destination,
+			),
+			departure: column(
+				values((one) => clockField(one.departure)),
+				MINIMUM.clock,
+			),
+			platform: column(
+				values((one) => platformField(one.platform)),
+				MINIMUM.platform,
+				"right",
+			),
+			delay: column(
+				values((one) => delayField(one.delay)),
+				MINIMUM.delay,
+			),
+			arrival: column(values(arrivalField), MINIMUM.arrival),
+		};
+	}, [journeys, short]);
+
+	const { rows } = columns;
+
+	// The flaps that change their character turn again, thus the board knocks
+	// for those flaps only. A refresh that changes one delay gives the knock of
+	// that column and of the hour of arrival.
+	const texts = useMemo(
+		() =>
+			[
+				columns.train,
+				columns.destination,
+				columns.departure,
+				columns.platform,
+				columns.delay,
+				columns.arrival,
+			].flatMap((one) => one.map((field) => field.text)),
+		[columns],
+	);
+	const before = useRef<string[]>([]);
+	useEffect(() => {
+		playClacks(clackTimes(turningFlaps(before.current, texts)));
+		before.current = texts;
+	}, [texts]);
 
 	return (
 		<div className="overflow-x-auto rounded-lg border border-board-line bg-board-panel">
 			<table className="w-full border-collapse">
-				<caption className="sr-only">{text.caption(from, to)}</caption>
+				<caption className="sr-only">
+					{from === undefined || to === undefined
+						? text.captionEmpty
+						: text.caption(from, to)}
+				</caption>
 				<thead>
 					<tr className="border-board-line border-b">
 						<Head className={WIDE_ONLY}>{text.columnTrain}</Head>
@@ -76,9 +139,13 @@ export function DepartureBoard({
 					</tr>
 				</thead>
 				<tbody>
-					{journeys.map((journey, row) => (
+					{rows.map((journey, row) => (
 						<tr
-							key={`${journey.train}-${journey.departure}`}
+							key={
+								journey === null
+									? `empty-${row}`
+									: `${journey.train}-${journey.departure}`
+							}
 							className="border-board-line/60 border-b last:border-b-0"
 						>
 							<Cell className={WIDE_ONLY} field={columns.train[row]} />

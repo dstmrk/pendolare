@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { JourneyView } from "../../shared/api.ts";
 import {
 	arrivalField,
+	blankField,
 	clockField,
 	column,
 	columnWidth,
 	delayField,
 	type Field,
+	MINIMUM,
 	pad,
 	platformField,
 	trainField,
@@ -43,36 +45,46 @@ describe("pad", () => {
 
 describe("columnWidth", () => {
 	it("gives the length of the longest value", () => {
-		expect(columnWidth(["ASTI", "ROMA TERMINI"])).toBe(12);
+		expect(columnWidth(["ASTI", "ROMA TERMINI"], 2)).toBe(12);
 	});
 
 	it("gives the smallest quantity of flaps to a column with no value", () => {
-		// A board of a station shows the housings of a field with no value.
-		expect(columnWidth([])).toBe(2);
-		expect(columnWidth(["", ""])).toBe(2);
-		expect(columnWidth(["4"])).toBe(2);
+		// The board shows its housings before the first answer.
+		expect(columnWidth([], MINIMUM.destination)).toBe(12);
+		expect(columnWidth(["", ""], MINIMUM.delay)).toBe(3);
+		expect(columnWidth(["4"], MINIMUM.platform)).toBe(2);
+	});
+
+	it("gives the length of a value that is longer than the smallest quantity", () => {
+		// RFI writes `2 F.E.R.` at the station of Ferrara.
+		expect(columnWidth(["2 F.E.R."], MINIMUM.platform)).toBe(8);
 	});
 });
 
 describe("column", () => {
 	it("gives each value the same quantity of flaps", () => {
-		const found = column([fieldOf("9323"), fieldOf("26036")]);
+		const found = column([fieldOf("9323"), fieldOf("26036")], 2);
 		expect(found.map((one) => one.text)).toEqual(["9323 ", "26036"]);
 	});
 
 	it("holds the space before the value of a column of the right side", () => {
-		const found = column([fieldOf("4"), fieldOf("1 SOT")], "right");
+		const found = column([fieldOf("4"), fieldOf("1 SOT")], 2, "right");
 		expect(found.map((one) => one.text)).toEqual(["    4", "1 SOT"]);
 	});
 
 	it("keeps the colour and the text of the screen reader", () => {
-		const found = column([{ text: "+5", tone: "amber", label: "cinque" }]);
+		const found = column([{ text: "+5", tone: "amber", label: "cinque" }], 2);
 		expect(found[0]?.tone).toBe("amber");
 		expect(found[0]?.label).toBe("cinque");
 	});
 
 	it("gives no field for a column with no row", () => {
-		expect(column([])).toEqual([]);
+		expect(column([], 5)).toEqual([]);
+	});
+
+	it("gives the smallest quantity of flaps to a row with no value", () => {
+		const found = column([blankField(), blankField()], MINIMUM.clock);
+		expect(found.map((one) => one.text)).toEqual(["     ", "     "]);
 	});
 });
 
