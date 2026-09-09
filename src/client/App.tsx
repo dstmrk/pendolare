@@ -55,40 +55,49 @@ export function App() {
 			</header>
 
 			<div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-				<section className="grid gap-4 sm:grid-cols-2">
-					<StationField
-						label={text.from}
-						placeholder={text.fromPlaceholder}
-						value={from}
-						onChange={setFrom}
-					/>
-					<StationField
-						label={text.to}
-						placeholder={text.toPlaceholder}
-						value={to}
-						onChange={setTo}
-					/>
+				<section className="grid grid-cols-[1fr_auto] grid-rows-2 gap-x-3 gap-y-3 sm:grid-cols-[1fr_auto_1fr] sm:grid-rows-1">
+					<div className="col-start-1 row-start-1">
+						<StationField
+							label={text.from}
+							placeholder={text.fromPlaceholder}
+							value={from}
+							onChange={setFrom}
+						/>
+					</div>
+					<div className="col-start-1 row-start-2 sm:col-start-3 sm:row-start-1">
+						<StationField
+							label={text.to}
+							placeholder={text.toPlaceholder}
+							value={to}
+							onChange={setTo}
+						/>
+					</div>
+					<div className="col-start-2 row-span-2 row-start-1 flex items-center justify-center sm:row-span-1">
+						<Button
+							variant="outline"
+							disabled={from === null && to === null}
+							aria-label={text.swap}
+							title={text.swap}
+							className="h-11 w-11 shrink-0 p-0"
+							onClick={() => {
+								setFrom(to);
+								setTo(from);
+							}}
+						>
+							<ArrowDownUpIcon />
+						</Button>
+					</div>
 				</section>
 
-				<div className="flex gap-3">
-					<Button
-						variant="outline"
-						disabled={from === null && to === null}
-						onClick={() => {
-							setFrom(to);
-							setTo(from);
-						}}
-					>
-						{text.swap}
-					</Button>
-					<Button
-						variant="outline"
-						disabled={!ready || board.isFetching}
-						onClick={() => board.refetch()}
-					>
-						{text.refresh}
-					</Button>
-				</div>
+				<Button
+					variant="outline"
+					disabled={!ready || board.isFetching}
+					className="mx-auto"
+					onClick={() => board.refetch()}
+				>
+					<RefreshCwIcon />
+					{text.refresh}
+				</Button>
 			</div>
 
 			{/* The board is always on the page. Before the first answer it shows
@@ -150,4 +159,54 @@ function Message({
 
 function Note({ children }: { children: string }) {
 	return <p className="text-board-muted text-xs">{children}</p>;
+}
+
+/**
+ * The icon `arrow-down-up` of Lucide, with the ISC licence. `README.md` gives
+ * that note.
+ */
+function ArrowDownUpIcon() {
+	return (
+		<svg
+			aria-hidden="true"
+			viewBox="0 0 24 24"
+			width="20"
+			height="20"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
+			<path d="m3 16 4 4 4-4" />
+			<path d="M7 20V4" />
+			<path d="m21 8-4-4-4 4" />
+			<path d="M17 4v16" />
+		</svg>
+	);
+}
+
+/**
+ * The icon `refresh-cw` of Lucide, with the ISC licence. `README.md` gives
+ * that note.
+ */
+function RefreshCwIcon() {
+	return (
+		<svg
+			aria-hidden="true"
+			viewBox="0 0 24 24"
+			width="18"
+			height="18"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
+			<path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+			<path d="M3 3v5h5" />
+			<path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+			<path d="M16 16h5v5" />
+		</svg>
+	);
 }
