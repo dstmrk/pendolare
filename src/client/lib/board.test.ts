@@ -10,6 +10,7 @@ import {
 	type Field,
 	MINIMUM,
 	pad,
+	padRows,
 	platformField,
 	trainField,
 } from "./board.ts";
@@ -51,8 +52,8 @@ describe("columnWidth", () => {
 	it("gives the smallest quantity of flaps to a column with no value", () => {
 		// The board shows its housings before the first answer.
 		expect(columnWidth([], MINIMUM.destination)).toBe(12);
-		expect(columnWidth(["", ""], MINIMUM.delay)).toBe(3);
-		expect(columnWidth(["4"], MINIMUM.platform)).toBe(2);
+		expect(columnWidth(["", ""], MINIMUM.delay)).toBe(4);
+		expect(columnWidth(["4"], MINIMUM.platform)).toBe(4);
 	});
 
 	it("gives the length of a value that is longer than the smallest quantity", () => {
@@ -86,6 +87,46 @@ describe("column", () => {
 		const found = column([blankField(), blankField()], MINIMUM.clock);
 		expect(found.map((one) => one.text)).toEqual(["     ", "     "]);
 	});
+
+	it("keeps the quantity of flaps of a fixed column", () => {
+		const found = column([fieldOf("9"), fieldOf("26036")], 2, "left", true);
+		expect(found.map((one) => one.text)).toEqual(["9 ", "26"]);
+	});
+
+	it("cuts a value that is longer than the flaps of a fixed column", () => {
+		// RFI writes `2 F.E.R.` at the station of Ferrara.
+		const found = column(
+			[fieldOf("2 F.E.R.")],
+			MINIMUM.platform,
+			"right",
+			true,
+		);
+		expect(found.map((one) => one.text)).toEqual(["2 F."]);
+	});
+
+	it("keeps the label of a value that a fixed column cuts", () => {
+		const found = column(
+			[{ text: "2 F.E.R.", tone: "text", label: "binario 2 F.E.R." }],
+			MINIMUM.platform,
+			"right",
+			true,
+		);
+		expect(found[0]?.label).toBe("binario 2 F.E.R.");
+	});
+});
+
+describe("padRows", () => {
+	it("adds an empty row to an answer with fewer trains", () => {
+		expect(padRows(["a", "b"], 5)).toEqual(["a", "b", null, null, null]);
+	});
+
+	it("gives no row for an answer with no train", () => {
+		expect(padRows([], 5)).toEqual([null, null, null, null, null]);
+	});
+
+	it("keeps the quantity of rows of an answer with the full quantity of trains", () => {
+		expect(padRows(["a", "b", "c"], 3)).toEqual(["a", "b", "c"]);
+	});
 });
 
 describe("trainField and clockField", () => {
@@ -104,15 +145,20 @@ describe("delayField", () => {
 
 	it("gives the sign to a train with a delay", () => {
 		const field = delayField({ kind: "minutes", minutes: 55 });
-		expect(field.text).toBe("+55");
+		expect(field.text).toBe("+ 55");
 		expect(field.tone).toBe("amber");
 		expect(field.label).toBe("55 minuti di ritardo");
 	});
 
 	it("gives the sign of a train in advance", () => {
 		const field = delayField({ kind: "minutes", minutes: -3 });
-		expect(field.text).toBe("-3");
+		expect(field.text).toBe("-  3");
 		expect(field.label).toBe("3 minuti di anticipo");
+	});
+
+	it("keeps the sign at the left and the number at the right", () => {
+		expect(delayField({ kind: "minutes", minutes: 5 }).text).toBe("+  5");
+		expect(delayField({ kind: "minutes", minutes: 120 }).text).toBe("+120");
 	});
 
 	it("gives a mark to a delay with no quantity", () => {

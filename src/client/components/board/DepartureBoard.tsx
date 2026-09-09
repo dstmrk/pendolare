@@ -8,6 +8,7 @@ import {
 	delayField,
 	type Field,
 	MINIMUM,
+	padRows,
 	platformField,
 	trainField,
 } from "../../lib/board.ts";
@@ -59,10 +60,7 @@ export function DepartureBoard({
 	// the width of the screen. The effect of the sound then reads one list of
 	// dependencies that is complete.
 	const columns = useMemo(() => {
-		const rows: (JourneyView | null)[] =
-			journeys.length === 0
-				? Array.from({ length: TRAINS }, () => null)
-				: [...journeys];
+		const rows = padRows(journeys, TRAINS);
 
 		/** Gives the value of each row, or an empty value for a board with no answer. */
 		const values = (of: (journey: JourneyView) => Field): Field[] =>
@@ -88,11 +86,13 @@ export function DepartureBoard({
 				values((one) => platformField(one.platform)),
 				MINIMUM.platform,
 				"right",
+				true,
 			),
 			delay: column(
 				values((one) => delayField(one.delay)),
 				MINIMUM.delay,
-				"right",
+				"left",
+				true,
 			),
 			arrival: column(values(arrivalField), MINIMUM.arrival),
 		};
