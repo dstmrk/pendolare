@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { type JourneyView, TRAINS } from "../../../shared/api.ts";
 import {
 	arrivalField,
@@ -7,15 +7,13 @@ import {
 	column,
 	delayField,
 	type Field,
-	loadingField,
 	MINIMUM,
 	padRows,
 	platformField,
-	SPIN_LAP_MS,
 	trainField,
 } from "../../lib/board.ts";
 import { clackTimes, turningFlaps } from "../../lib/clack.ts";
-import { useReducedMotion, useShortNames } from "../../lib/media.ts";
+import { useShortNames } from "../../lib/media.ts";
 import { playClacks } from "../../lib/sound.ts";
 import { text } from "../../text.ts";
 import { SplitFlapText } from "./SplitFlapText.tsx";
@@ -44,41 +42,18 @@ const WIDE_ONLY = "hidden md:table-cell";
  * flaps. A person then reads an empty board of a station, and the flaps turn
  * when the answer arrives. Paragraph 5.3 of `docs/architecture.md` gives the
  * rules.
- *
- * While the board waits for its first answer, `loading` gives its empty flaps
- * the letters of the drum in place of a blank value: the board then looks
- * alive, and not as a surface that waits with no movement. The turn to the
- * real answer then replaces this text as any other turn of the board, thus
- * the flaps hold one movement and not two.
  */
 export function DepartureBoard({
 	journeys,
 	from,
 	to,
-	loading = false,
 }: {
 	journeys: readonly JourneyView[];
 	/** The two stations of the answer. A board with no answer holds neither. */
 	from?: string;
 	to?: string;
-	/** The board waits for its first answer. */
-	loading?: boolean;
 }) {
 	const short = useShortNames();
-	const reducedMotion = useReducedMotion();
-	// A person who asks for no movement reads no spin: the flap stays blank,
-	// as the rule of `prefers-reduced-motion` of paragraph 5.2 of
-	// `docs/architecture.md`.
-	const spinning = loading && !reducedMotion;
-
-	const [tick, setTick] = useState(0);
-	useEffect(() => {
-		if (!spinning) {
-			return;
-		}
-		const id = setInterval(() => setTick((value) => value + 1), SPIN_LAP_MS);
-		return () => clearInterval(id);
-	}, [spinning]);
 
 	// TanStack Query keeps the identity of `journeys` when the answer does not
 	// change, thus these two values change only with the data of RFI or with
@@ -87,30 +62,15 @@ export function DepartureBoard({
 	const columns = useMemo(() => {
 		const rows = padRows(journeys, TRAINS);
 
-		/**
-		 * Gives the value of each row, or an empty value for a board with no
-		 * answer. `seed` gives the spin of this column its own place in the
-		 * drum, thus the columns do not turn together.
-		 */
-		const values = (
-			seed: number,
-			width: number,
-			of: (journey: JourneyView) => Field,
-		): Field[] =>
-			rows.map((one, row) => {
-				if (one !== null) {
-					return of(one);
-				}
-				return spinning
-					? loadingField(tick, seed + row * 13, width)
-					: blankField();
-			});
+		/** Gives the value of each row, or an empty value for a board with no answer. */
+		const values = (of: (journey: JourneyView) => Field): Field[] =>
+			rows.map((one) => (one === null ? blankField() : of(one)));
 
 		return {
 			rows,
-			train: column(values(0, MINIMUM.train, trainField), MINIMUM.train),
+			train: column(values(trainField), MINIMUM.train),
 			destination: column(
-				values(11, MINIMUM.destination, (one) => ({
+				values((one) => ({
 					text: short ? one.destinationShort : one.destination,
 					tone: "text",
 					// The screen reader always reads the official name.
@@ -119,27 +79,24 @@ export function DepartureBoard({
 				MINIMUM.destination,
 			),
 			departure: column(
-				values(22, MINIMUM.clock, (one) => clockField(one.departure)),
+				values((one) => clockField(one.departure)),
 				MINIMUM.clock,
 			),
 			platform: column(
-				values(33, MINIMUM.platform, (one) => platformField(one.platform)),
+				values((one) => platformField(one.platform)),
 				MINIMUM.platform,
 				"right",
 				true,
 			),
 			delay: column(
-				values(44, MINIMUM.delay, (one) => delayField(one.delay)),
+				values((one) => delayField(one.delay)),
 				MINIMUM.delay,
 				"left",
 				true,
 			),
-			arrival: column(
-				values(55, MINIMUM.arrival, arrivalField),
-				MINIMUM.arrival,
-			),
+			arrival: column(values(arrivalField), MINIMUM.arrival),
 		};
-	}, [journeys, short, spinning, tick]);
+	}, [journeys, short]);
 
 	const { rows } = columns;
 

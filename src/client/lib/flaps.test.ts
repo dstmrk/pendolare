@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DRUM, spinText, toFlapCells, toFlapTurn } from "./flaps.ts";
+import { DRUM, toFlapCells, toFlapTurn } from "./flaps.ts";
 
 describe("DRUM", () => {
 	it("starts at the empty position", () => {
@@ -102,53 +102,5 @@ describe("toFlapTurn", () => {
 
 	it("turns a small letter to a capital letter", () => {
 		expect(toFlapTurn("c", true).top).toBe("C");
-	});
-});
-
-describe("spinText", () => {
-	it("gives a text of the requested length", () => {
-		expect(spinText(0, 0, 4)).toHaveLength(4);
-	});
-
-	it("gives no text for a length of zero", () => {
-		expect(spinText(0, 0, 0)).toBe("");
-	});
-
-	it("gives no empty position", () => {
-		// A turn to the empty position shows no character, and it gives no hint
-		// that the application reads the monitor of RFI.
-		for (let tick = 0; tick < 50; tick += 1) {
-			expect(spinText(tick, 0, 3)).not.toContain(" ");
-		}
-	});
-
-	it("gives letters of the drum only", () => {
-		for (const char of spinText(3, 5, 12)) {
-			expect(DRUM).toContain(char);
-		}
-	});
-
-	it("gives a different character to each position of the text", () => {
-		// The positions of one flap turn at the same time, thus they must show
-		// letters of the drum and not the same letter eight times.
-		const found = new Set(spinText(0, 0, 8));
-		expect(found.size).toBeGreaterThan(1);
-	});
-
-	it("changes the text from one tick to the next", () => {
-		expect(spinText(0, 0, 6)).not.toBe(spinText(1, 0, 6));
-	});
-
-	it("gives each row and column its own text, with the same tick", () => {
-		expect(spinText(0, 0, 6)).not.toBe(spinText(0, 1, 6));
-	});
-
-	it("wraps at the end of the drum", () => {
-		expect(spinText(0, 0, 1)).toBe(spinText(0, DRUM.length - 1, 1));
-	});
-
-	it("gives a text also for a negative tick or seed", () => {
-		expect(() => spinText(-3, -2, 5)).not.toThrow();
-		expect(spinText(-3, -2, 5)).toHaveLength(5);
 	});
 });
