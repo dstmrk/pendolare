@@ -328,13 +328,17 @@ when the answer arrives. `MINIMUM` of `src/client/lib/board.ts` gives the
 quantity of flaps of each column of that board, thus the columns hold their place
 before the answer.
 
-Each column takes the quantity of flaps of its longest value, and `column` of
-`src/client/lib/board.ts` gives that quantity to each row. The columns of two
-rows then stay one under the other, and no row holds an empty flap that no value
-needs.
+Each column holds a fixed quantity of flaps, and `column` of
+`src/client/lib/board.ts` gives that quantity to every row with `fixed`. The
+columns of two rows then stay one under the other, and the board never changes
+its width between the wait for the answer and the answer itself, as a board of
+Solari.
 
-The quantity comes from the answer and not from a constant. The values of RFI
-hold a long tail. An examination of 8522 rows gives these numbers:
+`MINIMUM` of `src/client/lib/board.ts` gives the quantity of each column. The
+values of RFI hold a long tail, thus a value longer than its column receives
+the cut of `column`: the screen reader still reads the full value, because the
+cut applies to the flaps and not to the label of the field. An examination of
+8522 rows gives these numbers:
 
 | Column | Values | Longest value |
 |---|---|---|
@@ -348,6 +352,11 @@ The delay holds three flaps at the minimum and not four. The value `CANC` and a
 delay of more than 99 minutes hold four characters, and that column then takes
 one flap more: those two values are 1.5 per cent of the rows, and four flaps for
 each row make the table wider than a telephone.
+
+The destination holds fourteen flaps. `shortestName` of `src/shared/stations.ts`
+gives the shortest known name of a station before the cut of `column`, thus the
+cut of a long official name is rare and it stays a value that a board of Solari
+also gives.
 
 The column of the platform holds the space before its value. The platform is a
 number, and a number reads better at the right side of its column.

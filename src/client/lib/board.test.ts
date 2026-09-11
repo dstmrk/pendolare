@@ -51,7 +51,7 @@ describe("columnWidth", () => {
 
 	it("gives the smallest quantity of flaps to a column with no value", () => {
 		// The board shows its housings before the first answer.
-		expect(columnWidth([], MINIMUM.destination)).toBe(12);
+		expect(columnWidth([], MINIMUM.destination)).toBe(14);
 		expect(columnWidth(["", ""], MINIMUM.delay)).toBe(4);
 		expect(columnWidth(["4"], MINIMUM.platform)).toBe(4);
 	});
@@ -112,6 +112,18 @@ describe("column", () => {
 			true,
 		);
 		expect(found[0]?.label).toBe("binario 2 F.E.R.");
+	});
+
+	it("cuts an official name that is longer than the fixed column of the destination", () => {
+		// `CENTOLA-PALINURO-MARINA DI CAMEROTA` holds 36 characters.
+		const found = column(
+			[fieldOf("CENTOLA-PALINURO-MARINA DI CAMEROTA")],
+			MINIMUM.destination,
+			"left",
+			true,
+		);
+		expect(found[0]?.text).toBe("CENTOLA-PALINU");
+		expect(found[0]?.text).toHaveLength(MINIMUM.destination);
 	});
 });
 
