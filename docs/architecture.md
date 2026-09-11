@@ -233,6 +233,7 @@ The client reads the board again each minute.
 | Address | Answer |
 |---|---|
 | `GET /api/stations?q=<text>&limit=<n>` | The stations that match the text. |
+| `GET /api/stations?id=<id>` | The station of the identifier. |
 | `GET /api/journeys?from=<id>&to=<id>&limit=<n>` | The first trains from one station to the other. |
 
 `src/shared/api.ts` holds the shape of the two answers. The Worker and the
@@ -420,9 +421,10 @@ Vite reads `./public`, and the three files never arrive in `dist/client`.
 A person can bookmark a journey with `?from=<id>&to=<id>` in the address of
 the page, with the `placeId` of RFI of the two stations. `src/client/lib/url.ts`
 reads the two identifiers at the load of the page, and `App.tsx` gives each
-field a station with no name: the answer of `/api/journeys` holds the name of
-the two stations, and the field then shows it. The application asks no new
-address of the API for the name, because that answer already holds it.
+field a station with no name. `App.tsx` then asks `GET /api/stations?id=<id>`
+for the name of each station, so the field shows it at once and the person
+does not wait for the board. `GET /api/journeys` also gives the name of the
+two stations, and the field takes that name if the lookup gives none first.
 
 The address of the page changes again when the person selects a station or
 uses the button of the swap, with `history.replaceState`. Thus the address

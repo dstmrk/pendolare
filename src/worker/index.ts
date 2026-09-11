@@ -71,10 +71,13 @@ const TIMEOUT_MS = 10_000;
 /** The quantity of stations of the field of search. */
 const SUGGESTIONS = 8;
 
-const search = z.object({
-	q: z.string().min(1).max(60),
-	limit: z.coerce.number().int().min(1).max(20).default(SUGGESTIONS),
-});
+const search = z
+	.object({
+		q: z.string().min(1).max(60).optional(),
+		id: z.coerce.number().int().positive().optional(),
+		limit: z.coerce.number().int().min(1).max(20).default(SUGGESTIONS),
+	})
+	.refine((value) => value.q !== undefined || value.id !== undefined);
 
 const journey = z.object({
 	from: z.coerce.number().int().positive(),
@@ -131,13 +134,23 @@ async function fetchBoard(
 
 const app = new Hono();
 
-/** Gives the stations that match the text of the field. */
+/**
+ * Gives the stations that match the text of the field, or the one station of
+ * an identifier.
+ *
+ * The field of the page reads the station of the text. The page also reads
+ * the station of an identifier of its own address, at the load of the page,
+ * so it shows the name before the board gives it.
+ */
 app.get("/api/stations", (c) => {
 	const query = search.safeParse(c.req.query());
 	if (!query.success) {
 		return c.json({ error: "query" }, 400);
 	}
-	const found = searchStations(stations, query.data.q, query.data.limit);
+	const found =
+		query.data.id !== undefined
+			? [byId.get(query.data.id)].filter((one) => one !== undefined)
+			: searchStations(stations, query.data.q ?? "", query.data.limit);
 	// The catalogue changes with a new build only, thus the browser and the
 	// edge of Cloudflare keep the answer.
 	c.header("Cache-Control", "public, max-age=3600");
