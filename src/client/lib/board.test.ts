@@ -8,12 +8,10 @@ import {
 	columnWidth,
 	delayField,
 	type Field,
-	loadingField,
 	MINIMUM,
 	pad,
 	padRows,
 	platformField,
-	SPIN_LAP_MS,
 	trainField,
 } from "./board.ts";
 
@@ -140,34 +138,6 @@ describe("padRows", () => {
 
 	it("keeps the quantity of rows of an answer with the full quantity of trains", () => {
 		expect(padRows(["a", "b", "c"], 3)).toEqual(["a", "b", "c"]);
-	});
-});
-
-describe("loadingField", () => {
-	it("gives the requested quantity of flaps", () => {
-		expect(loadingField(0, 0, MINIMUM.destination).text).toHaveLength(
-			MINIMUM.destination,
-		);
-	});
-
-	it("gives no colour and no label", () => {
-		const field = loadingField(0, 0, 4);
-		expect(field.tone).toBe("text");
-		expect(field.label).toBe("");
-	});
-
-	it("gives no empty position", () => {
-		expect(loadingField(0, 0, 4).text).not.toContain(" ");
-	});
-
-	it("changes its text from one tick to the next", () => {
-		expect(loadingField(0, 0, 4).text).not.toBe(loadingField(1, 0, 4).text);
-	});
-});
-
-describe("SPIN_LAP_MS", () => {
-	it("gives a positive quantity of milliseconds", () => {
-		expect(SPIN_LAP_MS).toBeGreaterThan(0);
 	});
 });
 

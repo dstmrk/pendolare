@@ -17,7 +17,6 @@
 
 import type { JourneyView } from "../../shared/api.ts";
 import type { Delay } from "../../shared/monitor.ts";
-import { MAX_TURNS, STEP_MS, spinText, TURN_MS } from "./flaps.ts";
 
 /** The colour of a value on the board. */
 export type Tone = "text" | "amber" | "alert" | "muted";
@@ -106,28 +105,6 @@ export function column(
 /** A value of a board with no answer. Its flaps show no character. */
 export function blankField(): Field {
 	return { text: "", tone: "text", label: "" };
-}
-
-/**
- * The time of one lap of the spin of a flap that waits for its first answer.
- *
- * A lap must finish before the flap turns again, thus this value gives the
- * cascade of the widest column the time of its turn to the last character.
- * `DepartureBoard` advances the spin by this quantity of milliseconds.
- */
-export const SPIN_LAP_MS =
-	(Math.max(...Object.values(MINIMUM)) - 1) * STEP_MS + MAX_TURNS * TURN_MS;
-
-/**
- * A value of a board that waits for its first answer, with the letters of
- * the drum in place of a blank value.
- *
- * The board gives no meaning to this value, thus the screen reader receives
- * no label: a reader that speaks a changing text of letters every few
- * seconds says nothing useful to the person.
- */
-export function loadingField(tick: number, seed: number, width: number): Field {
-	return { text: spinText(tick, seed, width), tone: "text", label: "" };
 }
 
 /**
