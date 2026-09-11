@@ -6,7 +6,7 @@ import { SplitFlapText } from "./components/board/SplitFlapText.tsx";
 import { SoundToggle } from "./components/SoundToggle.tsx";
 import { StationField } from "./components/StationField.tsx";
 import { Button } from "./components/ui/button.tsx";
-import { fetchJourneys } from "./lib/api.ts";
+import { fetchJourneys, fetchStation } from "./lib/api.ts";
 import { armSound } from "./lib/sound.ts";
 import { presetStation, readStationIds, stationSearch } from "./lib/url.ts";
 import { text } from "./text.ts";
@@ -47,19 +47,49 @@ export function App() {
 		refetchInterval: REFRESH,
 	});
 
-	// The answer of the board gives the name of the two stations. The field of
-	// a station that the address of the page gave with no name then shows it.
+	// The address of the page can give a station with no name. The application
+	// asks the name at the load of the page, thus the field shows it at once
+	// and the person does not wait for the board.
+	const fromLookup = useQuery({
+		queryKey: ["station", from?.id],
+		queryFn: () => fetchStation(from?.id ?? 0),
+		enabled: from !== null && from.name === "",
+		staleTime: 60 * 60 * 1000,
+	});
+	const toLookup = useQuery({
+		queryKey: ["station", to?.id],
+		queryFn: () => fetchStation(to?.id ?? 0),
+		enabled: to !== null && to.name === "",
+		staleTime: 60 * 60 * 1000,
+	});
+
+	// The answer of the lookup, or the answer of the board, gives the name of
+	// the two stations. The field of a station that the address of the page
+	// gave with no name then shows it.
 	useEffect(() => {
-		if (board.data === undefined) {
-			return;
+		const name = fromLookup.data ?? board.data?.from;
+		if (
+			from !== null &&
+			name !== undefined &&
+			name !== null &&
+			from.id === name.id &&
+			from.name === ""
+		) {
+			setFrom(name);
 		}
-		if (from !== null && from.id === board.data.from.id && from.name === "") {
-			setFrom(board.data.from);
+	}, [fromLookup.data, board.data, from]);
+	useEffect(() => {
+		const name = toLookup.data ?? board.data?.to;
+		if (
+			to !== null &&
+			name !== undefined &&
+			name !== null &&
+			to.id === name.id &&
+			to.name === ""
+		) {
+			setTo(name);
 		}
-		if (to !== null && to.id === board.data.to.id && to.name === "") {
-			setTo(board.data.to);
-		}
-	}, [board.data, from, to]);
+	}, [toLookup.data, board.data, to]);
 
 	// The address of the page keeps the identifier of the two stations, thus a
 	// person can bookmark the journey and open the link again.

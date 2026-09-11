@@ -8,6 +8,7 @@
 import type {
 	ApiError,
 	JourneysAnswer,
+	StationSummary,
 	StationsAnswer,
 } from "../../shared/api.ts";
 
@@ -41,6 +42,12 @@ async function read<T>(url: string): Promise<T> {
 /** Gives the stations that match the text of the field. */
 export function fetchStations(query: string): Promise<StationsAnswer> {
 	return read<StationsAnswer>(`/api/stations?q=${encodeURIComponent(query)}`);
+}
+
+/** Gives the station of an identifier, or `null` if the catalogue holds none. */
+export async function fetchStation(id: number): Promise<StationSummary | null> {
+	const answer = await read<StationsAnswer>(`/api/stations?id=${id}`);
+	return answer.stations[0] ?? null;
 }
 
 /** Gives the first trains from one station to another station. */
