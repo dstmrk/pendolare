@@ -71,7 +71,7 @@ export const DRUM = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:'/-";
  * keeps the characters of the drum in their order, thus the movement stays the
  * movement of a drum.
  */
-const MAX_TURNS = 8;
+export const MAX_TURNS = 8;
 
 /**
  * One turn of a flap: the character that falls and the character that arrives.
@@ -144,4 +144,31 @@ export function toFlapTurn(char: string, moves: boolean): FlapTurn {
 
 	// The bottom half stays at the first character: the first fold covers it.
 	return { top: char.toUpperCase(), bottom: DRUM[start] as string, folds };
+}
+
+/**
+ * The letters of the drum, without the empty position.
+ *
+ * The board waits for its first answer with these letters, in place of a
+ * blank value. A turn to the empty position shows no character, and it gives
+ * no hint that the application reads the monitor of RFI.
+ */
+const SPIN_CHARS = DRUM.slice(1);
+
+/**
+ * The text of a flap while the board waits for its first answer.
+ *
+ * Each flap turns through the letters of the drum instead of staying still,
+ * as the hint that the application reads the monitor of RFI. `seed` gives a
+ * row or a column its own place in the drum, thus the flaps of the board do
+ * not turn together. `tick` advances the text one lap after the other, and
+ * each character of the text holds a different letter of the drum.
+ */
+export function spinText(tick: number, seed: number, length: number): string {
+	return Array.from({ length }, (_, index) => {
+		const position = tick + seed + index;
+		const place =
+			((position % SPIN_CHARS.length) + SPIN_CHARS.length) % SPIN_CHARS.length;
+		return SPIN_CHARS[place] as string;
+	}).join("");
 }
