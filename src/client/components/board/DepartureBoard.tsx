@@ -36,9 +36,11 @@ const WIDE_ONLY = "hidden md:table-cell";
  * breakpoint `xl` shows the short name of the destination. Paragraph 5.3 of
  * `docs/architecture.md` gives the three sizes.
  *
- * Each column takes the quantity of flaps of its longest value, thus the columns
- * of two rows stay one under the other and no row holds an empty flap that no
- * value needs. `MINIMUM` gives the quantity of a column with no value.
+ * Each column holds a fixed quantity of flaps, given by `MINIMUM`, thus the
+ * columns of two rows stay one under the other and the board never changes
+ * its width between the wait for the answer and the answer itself, as a
+ * board of Solari. A value longer than its column receives the cut of
+ * `column`.
  *
  * The board holds its rows before the first answer, with no character on its
  * flaps. A person then reads an empty board of a station, and the flaps turn
@@ -108,7 +110,12 @@ export function DepartureBoard({
 
 		return {
 			rows,
-			train: column(values(0, MINIMUM.train, trainField), MINIMUM.train),
+			train: column(
+				values(0, MINIMUM.train, trainField),
+				MINIMUM.train,
+				"left",
+				true,
+			),
 			destination: column(
 				values(11, MINIMUM.destination, (one) => ({
 					text: short ? one.destinationShort : one.destination,
@@ -117,10 +124,14 @@ export function DepartureBoard({
 					label: one.destination,
 				})),
 				MINIMUM.destination,
+				"left",
+				true,
 			),
 			departure: column(
 				values(22, MINIMUM.clock, (one) => clockField(one.departure)),
 				MINIMUM.clock,
+				"left",
+				true,
 			),
 			platform: column(
 				values(33, MINIMUM.platform, (one) => platformField(one.platform)),
@@ -137,6 +148,8 @@ export function DepartureBoard({
 			arrival: column(
 				values(55, MINIMUM.arrival, arrivalField),
 				MINIMUM.arrival,
+				"left",
+				true,
 			),
 		};
 	}, [journeys, short, spinning, tick]);

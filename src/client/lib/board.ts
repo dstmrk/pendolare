@@ -31,21 +31,24 @@ export type Field = {
 };
 
 /**
- * The smallest quantity of flaps of each column.
+ * The fixed quantity of flaps of each column.
  *
  * A column with no value still shows its housings: the page shows the board
  * before the first answer, and that board holds the flaps of each column. The
- * values come from the answers of RFI: a train holds four or five digits, a
- * short name of a station holds twelve characters, and an hour holds five.
+ * values come from the answers of RFI: a train holds four or five digits, an
+ * hour holds five, and a short name of a station holds fourteen characters.
  *
- * The platform and the delay hold four flaps and no more. RFI writes
- * `2 F.E.R.` at the station of Ferrara, and a delay can hold more than 99
- * minutes: those long values do not widen the table, and `column` cuts them
- * to four characters.
+ * Every column keeps this quantity: `column` of this file gives it to each
+ * field with `fixed`, and a value longer than its column receives the cut of
+ * `column`, as a board of Solari cuts a long name. RFI writes `2 F.E.R.` at
+ * the station of Ferrara, and that value becomes `2 F.`; a delay can hold
+ * more than 99 minutes, and that value becomes `+120`. The screen reader
+ * still reads the full value, because the cut applies to the text of the
+ * flaps and not to the label.
  */
 export const MINIMUM = {
 	train: 5,
-	destination: 12,
+	destination: 14,
 	clock: 5,
 	platform: 4,
 	delay: 4,
