@@ -167,6 +167,7 @@ export function App() {
 					journeys={board.data?.journeys ?? []}
 					from={board.data?.from.name}
 					to={board.data?.to.name}
+					loading={ready && board.isPending}
 				/>
 
 				{from !== null && to !== null && from.id === to.id && (
