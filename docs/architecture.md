@@ -450,6 +450,13 @@ together as the key of React. A refresh that changes one delay thus turns the
 flaps of that column and of the hour of arrival, and it knocks for those flaps
 only.
 
+**A flap that turns must knock, and a flap with no knock must not turn.** The
+two rules are one rule: the sound and the movement of a flap both come from
+the same change of text, thus a new surface of flaps needs no new sound code.
+The spin of a flap that waits for the first answer of a search is such a
+surface: it changes its text with `spinText` of `lib/flaps.ts`, and
+`turningFlaps` then gives it the same knock as a real answer of RFI.
+
 The sound starts on, and the button of the masthead stops it. The choice stays
 in the store of the browser, with the key `pendolare:suono`.
 
