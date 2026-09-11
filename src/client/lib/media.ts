@@ -30,28 +30,3 @@ export function useShortNames(): boolean {
 		() => false,
 	);
 }
-
-/** The person asks for no movement of the flaps. */
-const STILL = "(prefers-reduced-motion: reduce)";
-
-function subscribeStill(onChange: () => void): () => void {
-	const query = window.matchMedia(STILL);
-	query.addEventListener("change", onChange);
-	return () => query.removeEventListener("change", onChange);
-}
-
-/**
- * Says if the person asks for no movement.
- *
- * The board then shows the state at the end of the turn, with no animation.
- * Paragraph 5.2 of `docs/architecture.md` gives the rule. The spin of a flap
- * that waits for its first answer follows the same rule: it does not run for
- * this person, and the flap stays blank.
- */
-export function useReducedMotion(): boolean {
-	return useSyncExternalStore(
-		subscribeStill,
-		() => window.matchMedia(STILL).matches,
-		() => false,
-	);
-}
